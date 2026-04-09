@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Nothelfer Zentrum</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --crimson:#C41E3A;--crimson-d:#A01830;--bg:#0f0f12;--surface:#1a1a1f;
+  --surface2:#242429;--border:rgba(255,255,255,0.08);--text:#e8e3dc;
+  --muted:rgba(232,227,220,0.5);--green:#22c55e;--orange:#f97316;--red:#ef4444;
+}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+a{color:inherit;text-decoration:none}
+
+/* HEADER */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.h-logo{display:flex;align-items:center;gap:12px}
+.h-logo-mark{width:36px;height:36px;background:linear-gradient(135deg,var(--crimson),var(--crimson-d));border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px}
+.h-logo-text{font-size:17px;font-weight:600}
+.h-logo-text span{color:var(--crimson)}
+.h-nav{display:flex;gap:4px}
+.h-nav button{background:none;border:none;color:var(--muted);font-family:inherit;font-size:14px;font-weight:500;padding:8px 16px;border-radius:8px;cursor:pointer;transition:all .2s}
+.h-nav button:hover,.h-nav button.active{background:rgba(255,255,255,0.06);color:var(--text)}
+.h-nav button.active{color:#fff}
+.h-right{display:flex;align-items:center;gap:12px}
+.h-user{font-size:13px;color:var(--muted)}
+.btn-logout{background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);font-family:inherit;font-size:13px;padding:6px 14px;border-radius:8px;cursor:pointer;transition:all .2s}
+.btn-logout:hover{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:#ef4444}
+
+/* MAIN */
+main{flex:1;padding:32px}
+.page{display:none}
+.page.active{display:block}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px}
+.stat-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.stat-value{font-size:36px;font-weight:700;line-height:1}
+.stat-value.red{color:var(--crimson)}
+.stat-value.green{color:var(--green)}
+.stat-value.orange{color:var(--orange)}
+
+/* SECTION HEADER */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.section-header h2{font-size:20px;font-weight:600}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,var(--crimson),var(--crimson-d));color:#fff}
+.btn-primary:hover{opacity:.88}
+.btn-ghost{background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text)}
+.btn-ghost:hover{background:rgba(255,255,255,0.09)}
+.btn-danger{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444}
+.btn-danger:hover{background:rgba(239,68,68,0.2)}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+/* TABLE */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th{background:var(--surface2);padding:12px 16px;text-align:left;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);border-bottom:1px solid var(--border)}
+td{padding:13px 16px;font-size:14px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.02)}
+.td-actions{display:flex;gap:8px;align-items:center}
+
+/* BADGES */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.badge-neu{background:rgba(249,115,22,0.15);color:#f97316;border:1px solid rgba(249,115,22,0.2)}
+.badge-bestaetigt{background:rgba(34,197,94,0.12);color:#22c55e;border:1px solid rgba(34,197,94,0.2)}
+.badge-storniert{background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2)}
+.badge-aktiv{background:rgba(34,197,94,0.12);color:#22c55e;border:1px solid rgba(34,197,94,0.2)}
+.badge-inaktiv{background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2)}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:36px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:20px;font-weight:600;margin-bottom:24px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-group{margin-bottom:16px}
+.form-group.full{grid-column:1/-1}
+label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px}
+.inp{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:inherit;font-size:14px;outline:none;transition:border-color .2s}
+.inp:focus{border-color:var(--crimson)}
+.inp option{background:#1a1a1f;color:#e8e3dc}
+.modal-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:24px}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+.filter-bar select,.filter-bar input{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:9px 14px;color:var(--text);font-family:inherit;font-size:14px;outline:none}
+.filter-bar select:focus,.filter-bar input:focus{border-color:var(--crimson)}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty svg{width:48px;height:48px;margin:0 auto 16px;display:block;opacity:.3}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast-item{background:#1e2a1e;border:1px solid rgba(34,197,94,0.3);color:#22c55e;padding:12px 20px;border-radius:10px;font-size:14px;animation:slideIn .3s ease}
+.toast-item.err{background:#2a1a1e;border-color:rgba(239,68,68,0.3);color:#ef4444}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+/* SETTINGS */
+.settings-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:32px;max-width:480px}
+.settings-card h3{font-size:18px;font-weight:600;margin-bottom:24px}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="h-logo">
+    <div class="h-logo-mark">N</div>
+    <div class="h-logo-text">Nothelfer<span>Zentrum</span></div>
+  </div>
+  <nav class="h-nav">
+    <button class="active" onclick="showPage('overview')">Übersicht</button>
+    <button onclick="showPage('termine')">Kurstermine</button>
+    <button onclick="showPage('anmeldungen')">Anmeldungen</button>
+    <button onclick="showPage('einstellungen')">Einstellungen</button>
+  </nav>
+  <div class="h-right">
+    <span class="h-user" id="h-user">admin</span>
+    <button class="btn-logout" onclick="logout()">Abmelden</button>
+  </div>
+</header>
+
+<main>
+
+<!-- ─── ÜBERSICHT ─────────────────────────────────────────────────────── -->
+<div class="page active" id="page-overview">
+  <div class="stats-grid" id="stats-grid">
+    <div class="stat-card"><div class="stat-label">Gesamt Anmeldungen</div><div class="stat-value" id="s-total">—</div></div>
+    <div class="stat-card"><div class="stat-label">Neue Anmeldungen</div><div class="stat-value orange" id="s-neu">—</div></div>
+    <div class="stat-card"><div class="stat-label">Bestätigt</div><div class="stat-value green" id="s-best">—</div></div>
+    <div class="stat-card"><div class="stat-label">Aktive Termine</div><div class="stat-value red" id="s-termine">—</div></div>
+  </div>
+  <div class="section-header">
+    <h2>Neueste Anmeldungen</h2>
+    <button class="btn btn-ghost btn-sm" onclick="showPage('anmeldungen')">Alle anzeigen →</button>
+  </div>
+  <div class="table-wrap" id="overview-table">
+    <div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Keine Anmeldungen vorhanden</div>
+  </div>
+</div>
+
+<!-- ─── KURSTERMINE ───────────────────────────────────────────────────── -->
+<div class="page" id="page-termine">
+  <div class="section-header">
+    <h2>Kurstermine verwalten</h2>
+    <button class="btn btn-primary" onclick="openTerminModal()">+ Neuer Termin</button>
+  </div>
+  <div class="table-wrap" id="termine-table">
+    <div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Keine Termine vorhanden</div>
+  </div>
+</div>
+
+<!-- ─── ANMELDUNGEN ──────────────────────────────────────────────────── -->
+<div class="page" id="page-anmeldungen">
+  <div class="section-header">
+    <h2>Anmeldungen</h2>
+  </div>
+  <div class="filter-bar">
+    <select id="filter-status" onchange="loadAnmeldungen()">
+      <option value="">Alle Status</option>
+      <option value="neu">Neu</option>
+      <option value="bestaetigt">Bestätigt</option>
+      <option value="storniert">Storniert</option>
+    </select>
+    <select id="filter-termin" onchange="loadAnmeldungen()">
+      <option value="">Alle Termine</option>
+    </select>
+  </div>
+  <div class="table-wrap" id="anmeldungen-table"></div>
+</div>
+
+<!-- ─── EINSTELLUNGEN ────────────────────────────────────────────────── -->
+<div class="page" id="page-einstellungen">
+  <div class="section-header"><h2>Einstellungen</h2></div>
+  <div class="settings-card">
+    <h3>Passwort ändern</h3>
+    <div class="form-group">
+      <label class="fl">Aktuelles Passwort</label>
+      <input type="password" id="pw-alt" class="inp" placeholder="••••••••">
+    </div>
+    <div class="form-group">
+      <label class="fl">Neues Passwort</label>
+      <input type="password" id="pw-neu" class="inp" placeholder="••••••••">
+    </div>
+    <div class="form-group">
+      <label class="fl">Neues Passwort wiederholen</label>
+      <input type="password" id="pw-neu2" class="inp" placeholder="••••••••">
+    </div>
+    <button class="btn btn-primary" onclick="changePassword()">Passwort speichern</button>
+  </div>
+</div>
+
+</main>
+
+<!-- ─── MODAL KURSTERMIN ─────────────────────────────────────────────────── -->
+<div class="modal-bg" id="terminModal">
+  <div class="modal">
+    <h3 id="terminModal-title">Neuer Kurstermin</h3>
+    <input type="hidden" id="t-id">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="fl">Datum Von *</label>
+        <input type="date" id="t-von" class="inp">
+      </div>
+      <div class="form-group">
+        <label class="fl">Datum Bis *</label>
+        <input type="date" id="t-bis" class="inp">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="fl">Standort *</label>
+      <input type="text" id="t-standort" class="inp" placeholder="Wil SG">
+    </div>
+    <div class="form-group">
+      <label class="fl">Beschreibung</label>
+      <input type="text" id="t-beschreibung" class="inp" placeholder="Optional...">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="fl">Max. Plätze</label>
+        <input type="number" id="t-plaetze" class="inp" value="20" min="1">
+      </div>
+      <div class="form-group" id="t-aktiv-group" style="display:none">
+        <label class="fl">Status</label>
+        <select id="t-aktiv" class="inp">
+          <option value="1">Aktiv</option>
+          <option value="0">Inaktiv</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeTerminModal()">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveTermin()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL ANMELDUNG DETAIL ───────────────────────────────────────────── -->
+<div class="modal-bg" id="anmeldungModal">
+  <div class="modal">
+    <h3>Anmeldung Details</h3>
+    <div id="anmeldung-detail"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('anmeldungModal').classList.remove('open')">Schliessen</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ──────────────────────────────────────────────────────────────────────────
+//  UTILS
+// ──────────────────────────────────────────────────────────────────────────
+function toast(msg, isErr = false) {
+  const el = document.createElement('div');
+  el.className = 'toast-item' + (isErr ? ' err' : '');
+  el.textContent = msg;
+  document.getElementById('toast').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+function fmtDate(str) {
+  if (!str) return '—';
+  return new Date(str).toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+function fmtDT(str) {
+  if (!str) return '—';
+  const d = new Date(str);
+  return d.toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' +
+         d.toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' });
+}
+
+function statusBadge(s) {
+  const map = { neu: 'badge-neu', bestaetigt: 'badge-bestaetigt', storniert: 'badge-storniert' };
+  const label = { neu: 'Neu', bestaetigt: 'Bestätigt', storniert: 'Storniert' };
+  return `<span class="badge ${map[s] || ''}">${label[s] || s}</span>`;
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+//  NAVIGATION
+// ──────────────────────────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.h-nav button').forEach((b, i) => {
+    b.classList.toggle('active', b.getAttribute('onclick').includes(name));
+  });
+  document.getElementById('page-' + name).classList.add('active');
+  if (name === 'overview') loadOverview();
+  if (name === 'termine') loadTermine();
+  if (name === 'anmeldungen') { loadTermineFilter(); loadAnmeldungen(); }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+//  AUTH
+// ──────────────────────────────────────────────────────────────────────────
+async function checkAuth() {
+  const res = await fetch('/api/auth/me');
+  if (!res.ok) { window.location.href = '/dashboard/login.html'; return; }
+  const data = await res.json();
+  document.getElementById('h-user').textContent = data.username;
+}
+
+async function logout() {
+  await fetch('/api/auth/logout', { method: 'POST' });
+  window.location.href = '/dashboard/login.html';
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+//  OVERVIEW
+// ──────────────────────────────────────────────────────────────────────────
+async function loadOverview() {
+  const stats = await (await fetch('/api/admin/stats')).json();
+  document.getElementById('s-total').textContent   = stats.totalAnmeldungen;
+  document.getElementById('s-neu').textContent     = stats.neueAnmeldungen;
+  document.getElementById('s-best').textContent    = stats.bestaetigungen;
+  document.getElementById('s-termine').textContent = stats.aktiveTermine;
+
+  // letzte 10 Anmeldungen
+  const anm = await (await fetch('/api/admin/anmeldungen')).json();
+  const wrap = document.getElementById('overview-table');
+  if (!anm.length) { wrap.innerHTML = '<div class="empty">Keine Anmeldungen vorhanden</div>'; return; }
+  const rows = anm.slice(0, 10).map(a => `
+    <tr>
+      <td>${a.vorname} ${a.nachname}</td>
+      <td>${a.email}</td>
+      <td>${fmtDate(a.datum_von)} – ${fmtDate(a.datum_bis)}, ${a.standort || '—'}</td>
+      <td>${statusBadge(a.status)}</td>
+      <td>${fmtDT(a.erstellt_am)}</td>
+    </tr>`).join('');
+  wrap.innerHTML = `<table><thead><tr><th>Name</th><th>E-Mail</th><th>Termin</th><th>Status</th><th>Eingang</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+//  KURSTERMINE
+// ──────────────────────────────────────────────────────────────────────────
+async function loadTermine() {
+  const termine = await (await fetch('/api/admin/kurstermine')).json();
+  const wrap = document.getElementById('termine-table');
+  if (!termine.length) { wrap.innerHTML = '<div class="empty">Noch keine Termine angelegt</div>'; return; }
+  const rows = termine.map(t => `
+    <tr>
+      <td>${fmtDate(t.datum_von)} – ${fmtDate(t.datum_bis)}</td>
+      <td>${t.standort}</td>
+      <td>${t.beschreibung || '—'}</td>
+      <td>${t.gebuchte_plaetze} / ${t.max_plaetze}</td>
+      <td><span class="badge ${t.aktiv ? 'badge-aktiv' : 'badge-inaktiv'}">${t.aktiv ? 'Aktiv' : 'Inaktiv'}</span></td>
+      <td class="td-actions">
+        <button class="btn btn-ghost btn-sm" onclick="editTermin(${t.id})">Bearbeiten</button>
+        <button class="btn btn-ghost btn-sm" onclick="dupTermin(${t.id})">Duplizieren</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteTermin(${t.id})">Löschen</button>
+      </td>
+    </tr>`).join('');
+  wrap.innerHTML = `<table><thead><tr><th>Datum</th><th>Standort</th><th>Beschreibung</th><th>Plätze</th><th>Status</th><th>Aktionen</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+let _termine_cache = [];
+
+function openTerminModal(data = null) {
+  document.getElementById('terminModal-title').textContent = data ? 'Termin bearbeiten' : 'Neuer Kurstermin';
+  document.getElementById('t-id').value          = data ? data.id : '';
+  document.getElementById('t-von').value         = data ? data.datum_von.slice(0,10) : '';
+  document.getElementById('t-bis').value         = data ? data.datum_bis.slice(0,10) : '';
+  document.getElementById('t-standort').value    = data ? data.standort : '';
+  document.getElementById('t-beschreibung').value = data ? data.beschreibung : '';
+  document.getElementById('t-plaetze').value     = data ? data.max_plaetze : 20;
+  document.getElementById('t-aktiv').value       = data ? data.aktiv : 1;
+  document.getElementById('t-aktiv-group').style.display = data ? 'block' : 'none';
+  document.getElementById('terminModal').classList.add('open');
+}
+
+function closeTerminModal() {
+  document.getElementById('terminModal').classList.remove('open');
+}
+
+async function editTermin(id) {
+  const termine = await (await fetch('/api/admin/kurstermine')).json();
+  const t = termine.find(x => x.id === id);
+  if (t) openTerminModal(t);
+}
+
+async function saveTermin() {
+  const id = document.getElementById('t-id').value;
+  const body = {
+    datum_von:    document.getElementById('t-von').value,
+    datum_bis:    document.getElementById('t-bis').value,
+    standort:     document.getElementById('t-standort').value,
+    beschreibung: document.getElementById('t-beschreibung').value,
+    max_plaetze:  parseInt(document.getElementById('t-plaetze').value),
+    aktiv:        document.getElementById('t-aktiv').value === '1',
+  };
+  if (!body.datum_von || !body.datum_bis || !body.standort) {
+    toast('Bitte alle Pflichtfelder ausfüllen', true); return;
+  }
+  const url    = id ? `/api/admin/kurstermine/${id}` : '/api/admin/kurstermine';
+  const method = id ? 'PUT' : 'POST';
+  const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (res.ok) {
+    toast(id ? 'Termin aktualisiert' : 'Termin erstellt');
+    closeTerminModal();
+    loadTermine();
+  } else {
+    const err = await res.json();
+    toast(err.error || 'Fehler', true);
+  }
+}
+
+async function deleteTermin(id) {
+  if (!confirm('Termin wirklich löschen? Alle Anmeldungen bleiben erhalten.')) return;
+  const res = await fetch(`/api/admin/kurstermine/${id}`, { method: 'DELETE' });
+  if (res.ok) { toast('Termin gelöscht'); loadTermine(); }
+  else toast('Fehler beim Löschen', true);
+}
+
+async function dupTermin(id) {
+  const res = await fetch(`/api/admin/kurstermine/${id}/duplizieren`, { method: 'POST' });
+  if (res.ok) { toast('Termin dupliziert ✓'); loadTermine(); }
+  else toast('Fehler beim Duplizieren', true);
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+//  ANMELDUNGEN
+// ──────────────────────────────────────────────────────────────────────────
+async function loadTermineFilter() {
+  const termine = await (await fetch('/api/admin/kurstermine')).json();
+  _termine_cache = termine;
+  const sel = document.getElementById('filter-termin');
+  sel.innerHTML = '<option value="">Alle Termine</option>' +
+    termine.map(t => `<option value="${t.id}">${fmtDate(t.datum_von)} – ${fmtDate(t.datum_bis)}, ${t.standort}</option>`).join('');
+}
+
+async function loadAnmeldungen() {
+  const status   = document.getElementById('filter-status').value;
+  const terminId = document.getElementById('filter-termin').value;
+  let url = '/api/admin/anmeldungen?';
+  if (status)   url += `status=${status}&`;
+  if (terminId) url += `termin_id=${terminId}`;
+  const anm = await (await fetch(url)).json();
+  const wrap = document.getElementById('anmeldungen-table');
+  if (!anm.length) { wrap.innerHTML = '<div class="empty">Keine Anmeldungen gefunden</div>'; return; }
+  const rows = anm.map(a => `
+    <tr>
+      <td><strong>${a.vorname} ${a.nachname}</strong><br><span style="font-size:12px;color:var(--muted)">${a.email}</span></td>
+      <td>${a.telefon || '—'}</td>
+      <td>${fmtDate(a.datum_von)} – ${fmtDate(a.datum_bis)}<br><span style="font-size:12px;color:var(--muted)">${a.standort || ''}</span></td>
+      <td>${a.anzahl_personen} Pers.</td>
+      <td>${statusBadge(a.status)}</td>
+      <td>${fmtDT(a.erstellt_am)}</td>
+      <td class="td-actions">
+        <button class="btn btn-ghost btn-sm" onclick="showDetail(${a.id})">Details</button>
+        <select class="inp" style="padding:5px 10px;font-size:12px" onchange="setStatus(${a.id}, this.value)">
+          <option value="">Status…</option>
+          <option value="neu">Neu</option>
+          <option value="bestaetigt">Bestätigt</option>
+          <option value="storniert">Storniert</option>
+        </select>
+        <button class="btn btn-danger btn-sm" onclick="deleteAnmeldung(${a.id})">✕</button>
+      </td>
+    </tr>`).join('');
+  wrap.innerHTML = `<table><thead><tr><th>Name</th><th>Telefon</th><th>Termin</th><th>Pers.</th><th>Status</th><th>Eingang</th><th>Aktionen</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+async function showDetail(id) {
+  const anm = await (await fetch('/api/admin/anmeldungen')).json();
+  const a = anm.find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('anmeldung-detail').innerHTML = `
+    <table style="width:100%;border-collapse:collapse">
+      ${[
+        ['Name', `${a.vorname} ${a.nachname}`],
+        ['E-Mail', a.email],
+        ['Telefon', a.telefon || '—'],
+        ['Adresse', `${a.strasse}, ${a.plz_ort}`],
+        ['Termin', `${fmtDate(a.datum_von)} – ${fmtDate(a.datum_bis)}, ${a.standort}`],
+        ['Personen', a.anzahl_personen],
+        ['Status', a.status],
+        ['Bemerkungen', a.bemerkungen || '—'],
+        ['Eingegangen', fmtDT(a.erstellt_am)],
+      ].map(([k,v]) => `<tr><td style="padding:8px 0;color:var(--muted);font-size:13px;width:140px">${k}</td><td style="padding:8px 0;font-size:14px">${v}</td></tr>`).join('')}
+    </table>`;
+  document.getElementById('anmeldungModal').classList.add('open');
+}
+
+async function setStatus(id, status) {
+  if (!status) return;
+  const res = await fetch(`/api/admin/anmeldungen/${id}/status`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  });
+  if (res.ok) { toast('Status geändert'); loadAnmeldungen(); }
+  else toast('Fehler', true);
+}
+
+async function deleteAnmeldung(id) {
+  if (!confirm('Anmeldung wirklich löschen?')) return;
+  const res = await fetch(`/api/admin/anmeldungen/${id}`, { method: 'DELETE' });
+  if (res.ok) { toast('Anmeldung gelöscht'); loadAnmeldungen(); loadOverview(); }
+  else toast('Fehler', true);
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+//  EINSTELLUNGEN
+// ──────────────────────────────────────────────────────────────────────────
+async function changePassword() {
+  const altes  = document.getElementById('pw-alt').value;
+  const neues  = document.getElementById('pw-neu').value;
+  const neues2 = document.getElementById('pw-neu2').value;
+  if (neues !== neues2) { toast('Passwörter stimmen nicht überein', true); return; }
+  if (neues.length < 6) { toast('Passwort muss mind. 6 Zeichen haben', true); return; }
+  const res = await fetch('/api/admin/passwort', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ altes_passwort: altes, neues_passwort: neues }),
+  });
+  if (res.ok) {
+    toast('Passwort geändert ✓');
+    document.getElementById('pw-alt').value = '';
+    document.getElementById('pw-neu').value = '';
+    document.getElementById('pw-neu2').value = '';
+  } else {
+    const err = await res.json();
+    toast(err.error || 'Fehler', true);
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+//  MODAL CLOSE ON BG CLICK
+// ──────────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.modal-bg').forEach(bg => {
+  bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
+});
+
+// ──────────────────────────────────────────────────────────────────────────
+//  INIT
+// ──────────────────────────────────────────────────────────────────────────
+checkAuth().then(() => loadOverview());
+</script>
+</body>
+</html>

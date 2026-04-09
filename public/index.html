@@ -1,0 +1,2285 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nothelfer Zentrum – Erste Hilfe Kurse Schweiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Outfit:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ================================================================
+   NOTHELFER ZENTRUM — VIP PREMIUM EDITION
+   Aesthetic: Cinematic Luxury Editorial × Swiss Precision
+   ================================================================ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --black: #FFFFFF;
+  --black-warm: #F8F6F3;
+  --charcoal: #F1EDE8;
+  --slate: #E8E3DC;
+  --graphite: #D6D0C7;
+  --steel: #9B9488;
+  --silver: #6E675C;
+  --mist: #4A453D;
+  --cloud: #2E2A25;
+  --pearl: #1D1A16;
+  --ivory: #F6F7F9;
+  --white: #FFFFFF;
+  --crimson: #C41E3A;
+  --crimson-deep: #A01830;
+  --crimson-glow: #E02040;
+  --crimson-soft: rgba(196,30,58,0.06);
+  --crimson-ghost: rgba(196,30,58,0.03);
+  --gold: #B8942E;
+  --gold-soft: rgba(184,148,46,0.08);
+  --navy: #0F1923;
+  --navy-light: #1A2A3A;
+  --display: 'Cormorant Garamond', Georgia, serif;
+  --body: 'Outfit', -apple-system, sans-serif;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--crimson) #F1EDE8;
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #F1EDE8; }
+::-webkit-scrollbar-thumb { background: var(--crimson); border-radius: 3px; }
+
+body {
+  font-family: var(--body);
+  color: #3A352F;
+  background: #FFFFFF;
+  line-height: 1.65;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--crimson);
+  color: var(--white);
+}
+
+/* ================================================================
+   ANIMATED BACKGROUND PARTICLES
+   ================================================================ */
+#particles-canvas {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+/* ================================================================
+   CUSTOM CURSOR (desktop only)
+   ================================================================ */
+@media (hover: hover) {
+  .cursor-dot, .cursor-ring {
+    position: fixed;
+    pointer-events: none;
+    z-index: 99999;
+    border-radius: 50%;
+    transition: opacity 0.3s;
+  }
+  .cursor-dot {
+    width: 6px; height: 6px;
+    background: var(--crimson);
+    transform: translate(-50%, -50%);
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1.5px solid rgba(212,43,43,0.5);
+    transform: translate(-50%, -50%);
+    transition: width 0.3s var(--ease-out-expo), height 0.3s var(--ease-out-expo), border-color 0.3s;
+  }
+  .cursor-ring.hover {
+    width: 56px; height: 56px;
+    border-color: var(--crimson-glow);
+    background: rgba(212,43,43,0.06);
+  }
+}
+
+/* ================================================================
+   NAVBAR — FLOATING GLASS
+   ================================================================ */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 9000;
+  padding: 16px 40px;
+  transition: all 0.5s var(--ease-smooth);
+}
+.nav.scrolled { padding: 10px 40px; }
+.nav-inner {
+  max-width: 1360px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 80px;
+  padding: 14px 16px 14px 28px;
+  transition: all 0.5s var(--ease-smooth);
+  box-shadow: 0 4px 40px rgba(0,0,0,0.06);
+}
+.nav.scrolled .nav-inner {
+  background: rgba(255,255,255,0.92);
+  box-shadow: 0 8px 48px rgba(0,0,0,0.1);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 14px;
+  text-decoration: none;
+}
+.nav-logo-mark {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, var(--crimson), var(--crimson-deep));
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.nav-logo-mark::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.15));
+}
+.nav-logo-mark span {
+  font-family: var(--display);
+  font-weight: 700; font-size: 20px; color: var(--white);
+  position: relative; z-index: 1;
+}
+.nav-logo-text {
+  font-family: var(--display);
+  font-weight: 600; font-size: 22px; color: #1D1A16;
+  letter-spacing: -0.3px;
+}
+.nav-logo-text em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--crimson-glow), var(--crimson));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.nav-links {
+  display: flex; align-items: center; gap: 8px;
+}
+.nav-links a {
+  color: #6E675C;
+  text-decoration: none;
+  font-size: 14px; font-weight: 500;
+  padding: 10px 18px;
+  border-radius: 50px;
+  transition: all 0.3s var(--ease-smooth);
+  letter-spacing: 0.2px;
+  position: relative;
+}
+.nav-links a:hover {
+  color: #1D1A16;
+  background: rgba(0,0,0,0.04);
+}
+.nav-cta {
+  background: linear-gradient(135deg, var(--crimson), var(--crimson-deep)) !important;
+  color: var(--white) !important;
+  font-weight: 600 !important;
+  padding: 12px 28px !important;
+  box-shadow: 0 2px 20px rgba(212,43,43,0.3);
+  border: none;
+}
+.nav-cta:hover {
+  box-shadow: 0 4px 30px rgba(212,43,43,0.5) !important;
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, var(--crimson-glow), var(--crimson)) !important;
+}
+
+/* Mobile Nav */
+.nav-hamburger {
+  display: none; background: none; border: none;
+  cursor: pointer; padding: 8px; position: relative;
+  width: 40px; height: 40px;
+}
+.nav-hamburger span {
+  display: block; width: 22px; height: 2px;
+  background: #2E2A25;
+  position: absolute; left: 50%; transform: translateX(-50%);
+  transition: all 0.3s var(--ease-out-expo);
+  border-radius: 2px;
+}
+.nav-hamburger span:nth-child(1) { top: 12px; }
+.nav-hamburger span:nth-child(2) { top: 19px; }
+.nav-hamburger span:nth-child(3) { top: 26px; }
+.nav-hamburger.open span:nth-child(1) { top: 19px; transform: translateX(-50%) rotate(45deg); }
+.nav-hamburger.open span:nth-child(2) { opacity: 0; }
+.nav-hamburger.open span:nth-child(3) { top: 19px; transform: translateX(-50%) rotate(-45deg); }
+
+.mobile-menu {
+  position: fixed; inset: 0; z-index: 8999;
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 8px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.4s var(--ease-smooth);
+}
+.mobile-menu.open { opacity: 1; pointer-events: all; }
+.mobile-menu a {
+  color: #2E2A25;
+  text-decoration: none;
+  font-family: var(--display);
+  font-size: 32px; font-weight: 500;
+  padding: 14px 32px;
+  transition: all 0.3s;
+  opacity: 0; transform: translateY(20px);
+}
+.mobile-menu.open a {
+  opacity: 1; transform: translateY(0);
+}
+.mobile-menu a:nth-child(1) { transition-delay: 0.1s; }
+.mobile-menu a:nth-child(2) { transition-delay: 0.15s; }
+.mobile-menu a:nth-child(3) { transition-delay: 0.2s; }
+.mobile-menu a:nth-child(4) { transition-delay: 0.25s; }
+.mobile-menu a:nth-child(5) { transition-delay: 0.3s; }
+.mobile-menu a:nth-child(6) { transition-delay: 0.35s; }
+.mobile-menu a:hover { color: var(--crimson-glow); }
+
+/* ================================================================
+   HERO — CINEMATIC FULLSCREEN
+   ================================================================ */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex; align-items: center;
+  overflow: hidden;
+}
+.hero-media {
+  position: absolute; inset: 0;
+}
+.hero-media img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: brightness(0.28) contrast(1.1) saturate(0.8);
+  transform: scale(1.08);
+  animation: heroZoom 20s ease-in-out infinite alternate;
+}
+@keyframes heroZoom {
+  0% { transform: scale(1.08) translate(0, 0); }
+  100% { transform: scale(1.15) translate(-1%, -1%); }
+}
+.hero-overlay {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 80%, rgba(196,30,58,0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(201,168,76,0.04) 0%, transparent 50%),
+    linear-gradient(180deg, rgba(8,9,10,0.6) 0%, rgba(8,9,10,0.45) 40%, rgba(8,9,10,0.8) 100%);
+}
+.hero-vignette {
+  position: absolute; inset: 0;
+  box-shadow: inset 0 0 200px 60px rgba(0,0,0,0.5);
+}
+.hero-grain {
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+.hero-content {
+  position: relative; z-index: 2;
+  max-width: 1360px; margin: 0 auto;
+  padding: 160px 48px 120px;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 80px; align-items: center;
+}
+.hero-left { }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: rgba(212,43,43,0.08);
+  border: 1px solid rgba(212,43,43,0.2);
+  padding: 10px 22px; border-radius: 60px;
+  margin-bottom: 32px;
+  animation: fadeSlideUp 0.8s 0.2s var(--ease-out-expo) both;
+}
+.hero-badge-dot {
+  width: 8px; height: 8px;
+  background: var(--crimson-glow);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 10px var(--crimson-glow);
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+.hero-badge span {
+  font-size: 12px; font-weight: 700;
+  color: var(--crimson-glow);
+  letter-spacing: 2.5px; text-transform: uppercase;
+}
+.hero h1 {
+  font-family: var(--display);
+  font-size: clamp(46px, 5.5vw, 80px);
+  font-weight: 400;
+  line-height: 1.05;
+  color: var(--white);
+  letter-spacing: -1.5px;
+  margin-bottom: 28px;
+  animation: fadeSlideUp 0.8s 0.35s var(--ease-out-expo) both;
+}
+.hero h1 strong {
+  font-weight: 700;
+  font-style: italic;
+  background: linear-gradient(135deg, var(--crimson-glow) 0%, var(--gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-divider {
+  width: 80px; height: 2px;
+  background: linear-gradient(90deg, var(--crimson), transparent);
+  margin-bottom: 24px;
+  animation: fadeSlideUp 0.8s 0.45s var(--ease-out-expo) both;
+}
+.hero-desc {
+  font-size: 18px; font-weight: 400;
+  color: rgba(255,255,255,0.9);
+  line-height: 1.8; max-width: 500px;
+  margin-bottom: 48px;
+  animation: fadeSlideUp 0.8s 0.5s var(--ease-out-expo) both;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.4);
+}
+.hero-actions {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  animation: fadeSlideUp 0.8s 0.6s var(--ease-out-expo) both;
+}
+.btn-hero {
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 18px 36px;
+  border-radius: 60px;
+  font-size: 15px; font-weight: 600;
+  text-decoration: none;
+  transition: all 0.4s var(--ease-out-expo);
+  cursor: pointer; border: none;
+  font-family: var(--body);
+  letter-spacing: 0.3px;
+}
+.btn-hero-primary {
+  background: linear-gradient(135deg, var(--crimson), var(--crimson-deep));
+  color: var(--white);
+  box-shadow:
+    0 4px 24px rgba(212,43,43,0.4),
+    0 0 0 1px rgba(212,43,43,0.3);
+  position: relative; overflow: hidden;
+}
+.btn-hero-primary::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--crimson-glow), var(--crimson));
+  opacity: 0; transition: opacity 0.4s;
+}
+.btn-hero-primary:hover::before { opacity: 1; }
+.btn-hero-primary:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 8px 40px rgba(212,43,43,0.5),
+    0 0 0 1px rgba(255,61,61,0.5);
+}
+.btn-hero-primary span, .btn-hero-primary svg { position: relative; z-index: 1; }
+.btn-hero-primary svg { width: 18px; height: 18px; }
+.btn-hero-ghost {
+  background: rgba(255,255,255,0.2);
+  border: 2px solid rgba(255,255,255,0.6);
+  color: #FFFFFF;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.btn-hero-ghost:hover {
+  background: rgba(255,255,255,0.35);
+  border-color: #FFFFFF;
+  color: #FFFFFF;
+  transform: translateY(-2px);
+}
+.btn-hero-ghost svg { width: 18px; height: 18px; }
+
+/* Hero Right — Floating Cards */
+.hero-right {
+  position: relative;
+  animation: fadeSlideUp 1s 0.7s var(--ease-out-expo) both;
+}
+.hero-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 16px;
+  perspective: 1000px;
+}
+.hero-card {
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: all 0.6s var(--ease-out-expo);
+}
+.hero-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+  border-color: rgba(212,43,43,0.2);
+}
+.hero-card img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  transition: transform 0.8s var(--ease-out-expo);
+}
+.hero-card:hover img { transform: scale(1.08); }
+.hero-card:nth-child(1) {
+  grid-row: 1 / 3;
+  min-height: 420px;
+}
+.hero-card:nth-child(2) { min-height: 200px; }
+.hero-card:nth-child(3) { min-height: 200px; }
+.hero-card-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(8,9,10,0.6) 100%);
+}
+.hero-card-label {
+  position: absolute; bottom: 16px; left: 16px;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(12px);
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-size: 12px; font-weight: 600;
+  color: var(--white);
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Hero Floating Stats */
+.hero-floating-stat {
+  position: absolute;
+  background: rgba(14,15,17,0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 18px 22px;
+  z-index: 5;
+  animation: float 6s ease-in-out infinite;
+}
+.hero-floating-stat:nth-child(4) {
+  bottom: -20px; left: -30px;
+  animation-delay: 0s;
+}
+.hero-floating-stat:nth-child(5) {
+  top: -10px; right: -20px;
+  animation-delay: 2s;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.hfs-number {
+  font-family: var(--display);
+  font-size: 28px; font-weight: 700;
+  color: var(--white); line-height: 1;
+}
+.hfs-number em {
+  font-style: normal;
+  color: var(--crimson-glow);
+}
+.hfs-label {
+  font-size: 12px; color: rgba(255,255,255,0.6);
+  font-weight: 500; margin-top: 2px;
+}
+
+/* ================================================================
+   MARQUEE TICKER
+   ================================================================ */
+.marquee {
+  background: #F1EDE8;
+  border-top: 1px solid rgba(0,0,0,0.04);
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  overflow: hidden;
+  padding: 18px 0 80px;
+  position: relative; z-index: 1;
+}
+.marquee-track {
+  display: flex;
+  animation: marquee 30s linear infinite;
+  width: max-content;
+}
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.marquee-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 40px;
+  white-space: nowrap;
+  font-size: 14px; font-weight: 600;
+  color: #6E675C;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.marquee-item svg {
+  width: 16px; height: 16px;
+  color: var(--crimson);
+}
+
+/* ================================================================
+   SECTION FRAMEWORK
+   ================================================================ */
+.section {
+  position: relative; z-index: 2;
+  padding: 120px 48px;
+  max-width: 1360px; margin: 0 auto;
+}
+.section-header { margin-bottom: 72px; }
+.section-header.center { text-align: center; }
+.section-tag {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--crimson);
+  margin-bottom: 20px;
+}
+.section-tag::before {
+  content: '';
+  width: 24px; height: 1px;
+  background: var(--crimson);
+}
+.section-title {
+  font-family: var(--display);
+  font-size: clamp(36px, 4vw, 56px);
+  font-weight: 400; color: #1D1A16;
+  line-height: 1.12; letter-spacing: -0.5px;
+}
+.section-title strong {
+  font-weight: 700; font-style: italic;
+}
+.section-subtitle {
+  font-size: 17px; color: #6E675C;
+  max-width: 520px; line-height: 1.75;
+  margin-top: 20px; font-weight: 300;
+}
+.section-header.center .section-subtitle { margin-inline: auto; }
+
+/* ================================================================
+   STATS STRIP — GLASSMORPHISM
+   ================================================================ */
+.stats-strip {
+  position: relative; z-index: 5;
+  margin-top: -60px;
+  padding: 0 48px;
+}
+.stats-inner {
+  max-width: 1200px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+}
+.stat-item {
+  text-align: center;
+  padding: 44px 24px;
+  position: relative;
+  transition: all 0.4s;
+}
+.stat-item:not(:last-child)::after {
+  content: '';
+  position: absolute; right: 0; top: 25%; bottom: 25%;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,0.08), transparent);
+}
+.stat-item:hover { background: rgba(196,30,58,0.03); }
+.stat-number {
+  font-family: var(--display);
+  font-size: 48px; font-weight: 700;
+  color: #1D1A16; line-height: 1;
+  margin-bottom: 8px;
+}
+.stat-number span {
+  background: linear-gradient(135deg, var(--crimson), var(--crimson-deep));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.stat-label {
+  font-size: 13px; color: #6E675C;
+  font-weight: 500; letter-spacing: 0.5px;
+}
+
+/* ================================================================
+   USP / WARUM WIR — PREMIUM CARDS
+   ================================================================ */
+.usp-section {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F8F6F3 100%);
+}
+.usp-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.usp-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 24px;
+  padding: 44px 36px;
+  position: relative; overflow: hidden;
+  transition: all 0.5s var(--ease-out-expo);
+  cursor: default;
+}
+.usp-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--crimson), var(--gold), var(--crimson));
+  background-size: 200% 100%;
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.6s var(--ease-out-expo);
+}
+.usp-card:hover::before { transform: scaleX(1); }
+.usp-card::after {
+  content: '';
+  position: absolute; top: -80px; right: -80px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(196,30,58,0.04), transparent 70%);
+  opacity: 0; transition: opacity 0.5s;
+}
+.usp-card:hover::after { opacity: 1; }
+.usp-card:hover {
+  border-color: rgba(196,30,58,0.15);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.08);
+}
+.usp-icon {
+  width: 56px; height: 56px;
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 24px;
+  position: relative;
+  background: rgba(196,30,58,0.06);
+  border: 1px solid rgba(196,30,58,0.08);
+  transition: all 0.4s var(--ease-out-expo);
+}
+.usp-card:hover .usp-icon {
+  background: linear-gradient(135deg, var(--crimson), var(--crimson-deep));
+  border-color: transparent;
+  box-shadow: 0 4px 20px rgba(212,43,43,0.3);
+}
+.usp-icon svg {
+  width: 24px; height: 24px;
+  color: var(--crimson);
+  transition: color 0.4s;
+}
+.usp-card:hover .usp-icon svg { color: var(--white); }
+.usp-card h3 {
+  font-family: var(--display);
+  font-size: 24px; font-weight: 600;
+  color: #1D1A16;
+  margin-bottom: 12px; letter-spacing: -0.2px;
+}
+.usp-card p {
+  font-size: 15px; color: #6E675C;
+  line-height: 1.7; font-weight: 300;
+}
+
+/* ================================================================
+   PROCESS / ABLAUF — TIMELINE
+   ================================================================ */
+.process-section {
+  background: #F8F6F3;
+  position: relative; overflow: hidden;
+}
+.process-section::before {
+  content: '';
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 1px; height: 100%;
+  background: linear-gradient(180deg, transparent, rgba(196,30,58,0.15), transparent);
+}
+.process-timeline {
+  display: flex; flex-direction: column; gap: 0;
+  position: relative;
+  max-width: 900px; margin: 0 auto;
+}
+.process-step {
+  display: grid;
+  grid-template-columns: 1fr 80px 1fr;
+  align-items: center;
+  gap: 0;
+  padding: 40px 0;
+}
+.process-step:nth-child(even) .ps-content { grid-column: 3; text-align: left; }
+.process-step:nth-child(even) .ps-spacer { grid-column: 1; }
+.ps-content { padding: 0 32px; }
+.ps-center {
+  display: flex; justify-content: center; align-items: center;
+  grid-column: 2;
+  position: relative; z-index: 2;
+}
+.ps-number {
+  width: 64px; height: 64px;
+  background: #FFFFFF;
+  border: 2px solid var(--crimson);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display);
+  font-size: 24px; font-weight: 700;
+  color: var(--crimson);
+  transition: all 0.4s var(--ease-out-expo);
+  box-shadow: 0 0 24px rgba(212,43,43,0.15);
+}
+.process-step:hover .ps-number {
+  background: var(--crimson);
+  color: var(--white);
+  box-shadow: 0 0 40px rgba(212,43,43,0.4);
+  transform: scale(1.12);
+}
+.ps-content h3 {
+  font-family: var(--display);
+  font-size: 26px; font-weight: 600;
+  color: #1D1A16; margin-bottom: 8px;
+}
+.ps-content p {
+  font-size: 15px; color: #6E675C;
+  line-height: 1.7; font-weight: 300;
+}
+
+/* ================================================================
+   IMMERSIVE SPLIT — EDITORIAL IMAGE
+   ================================================================ */
+.immersive {
+  position: relative; z-index: 2;
+  display: grid; grid-template-columns: 1fr 1fr;
+  min-height: 650px;
+}
+.immersive-image {
+  position: relative; overflow: hidden;
+}
+.immersive-image img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 8s ease;
+}
+.immersive:hover .immersive-image img { transform: scale(1.06); }
+.immersive-image-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 60%, #F8F6F3 100%);
+}
+.immersive-content {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 80px 72px;
+  background: #F8F6F3;
+  position: relative;
+}
+.immersive-content::before {
+  content: '';
+  position: absolute; left: 0; top: 15%; bottom: 15%;
+  width: 3px;
+  background: linear-gradient(180deg, transparent, var(--crimson), transparent);
+}
+.immersive-content p {
+  font-size: 17px; color: #6E675C;
+  line-height: 1.8; font-weight: 300;
+  margin-bottom: 24px; max-width: 460px;
+}
+.immersive-list {
+  list-style: none;
+  margin: 28px 0 44px;
+}
+.immersive-list li {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding: 14px 0;
+  font-size: 15px; color: #3A352F;
+  font-weight: 400;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.immersive-list li:last-child { border-bottom: none; }
+.immersive-list li svg {
+  width: 22px; height: 22px;
+  color: var(--crimson);
+  flex-shrink: 0; margin-top: 1px;
+}
+.btn-inline {
+  display: inline-flex; align-items: center; gap: 10px;
+  color: var(--crimson); font-weight: 600; font-size: 15px;
+  text-decoration: none; letter-spacing: 0.5px;
+  transition: all 0.3s;
+}
+.btn-inline:hover { gap: 16px; color: var(--crimson-glow); }
+.btn-inline svg { width: 18px; height: 18px; transition: transform 0.3s; }
+.btn-inline:hover svg { transform: translateX(4px); }
+
+/* ================================================================
+   KURSE — DARK PREMIUM CARDS
+   ================================================================ */
+.kurse-section {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F1EDE8 50%, #FFFFFF 100%);
+}
+.kurse-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 24px; margin-top: 8px;
+}
+.kurs-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 24px;
+  padding: 36px;
+  transition: all 0.5s var(--ease-out-expo);
+  position: relative; overflow: hidden;
+}
+.kurs-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(160deg, rgba(196,30,58,0.03), transparent 60%);
+  opacity: 0; transition: opacity 0.5s;
+}
+.kurs-card:hover::before { opacity: 1; }
+.kurs-card:hover {
+  border-color: rgba(196,30,58,0.2);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+}
+.kurs-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 24px; position: relative;
+}
+.kurs-location-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(196,30,58,0.06);
+  border: 1px solid rgba(196,30,58,0.12);
+  padding: 8px 18px; border-radius: 50px;
+  font-size: 13px; font-weight: 600;
+  color: var(--crimson);
+}
+.kurs-location-badge svg { width: 14px; height: 14px; }
+.kurs-price {
+  font-family: var(--display);
+  font-size: 32px; font-weight: 700; color: #1D1A16;
+}
+.kurs-price small {
+  font-size: 13px; font-weight: 400;
+  color: #6E675C; font-family: var(--body);
+}
+.kurs-details {
+  display: flex; flex-direction: column; gap: 14px;
+  margin-bottom: 28px;
+}
+.kurs-detail {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 14px; color: #6E675C; font-weight: 400;
+}
+.kurs-detail svg {
+  width: 18px; height: 18px; color: var(--crimson);
+  flex-shrink: 0; opacity: 0.8;
+}
+.kurs-spots {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+}
+.kurs-spots-text { white-space: nowrap; }
+.kurs-bar {
+  flex: 1; height: 3px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 3px; overflow: hidden;
+}
+.kurs-bar-fill {
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, var(--crimson), var(--crimson-glow));
+  transition: width 0.6s var(--ease-out-expo);
+}
+.kurs-book-btn {
+  display: block; width: 100%; text-align: center;
+  background: linear-gradient(135deg, var(--crimson), var(--crimson-deep));
+  color: var(--white);
+  padding: 16px; border-radius: 14px;
+  font-size: 15px; font-weight: 600;
+  text-decoration: none; border: none;
+  cursor: pointer; font-family: var(--body);
+  transition: all 0.4s var(--ease-out-expo);
+  box-shadow: 0 2px 16px rgba(212,43,43,0.2);
+  letter-spacing: 0.3px;
+  position: relative; overflow: hidden;
+}
+.kurs-book-btn::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--crimson-glow), var(--crimson));
+  opacity: 0; transition: opacity 0.3s;
+}
+.kurs-book-btn span { position: relative; z-index: 1; }
+.kurs-book-btn:hover::before { opacity: 1; }
+.kurs-book-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 28px rgba(212,43,43,0.4);
+}
+.kurse-show-all {
+  text-align: center; margin-top: 48px;
+}
+.kurse-show-all a {
+  color: #6E675C; text-decoration: none;
+  font-size: 14px; font-weight: 500;
+  letter-spacing: 0.5px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(0,0,0,0.15);
+  transition: all 0.3s;
+}
+.kurse-show-all a:hover {
+  color: #1D1A16; border-color: var(--crimson);
+}
+
+/* ================================================================
+   TESTIMONIALS — EDITORIAL
+   ================================================================ */
+.testimonials-section {
+  background: #F8F6F3;
+  position: relative;
+}
+.testimonials-section::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,0,0,0.06), transparent);
+}
+.test-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.test-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 24px;
+  padding: 40px;
+  position: relative;
+  transition: all 0.5s var(--ease-out-expo);
+}
+.test-card:hover {
+  border-color: rgba(196,30,58,0.12);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.06);
+}
+.test-card-quote {
+  font-size: 56px; font-family: var(--display);
+  color: var(--crimson); opacity: 0.3;
+  line-height: 1; margin-bottom: -8px;
+}
+.test-stars {
+  display: flex; gap: 3px; margin-bottom: 18px;
+}
+.test-stars svg { width: 16px; height: 16px; fill: var(--gold); color: var(--gold); }
+.test-text {
+  font-size: 15px; color: #4A453D;
+  line-height: 1.75; font-weight: 300;
+  font-style: italic; margin-bottom: 28px;
+}
+.test-author {
+  display: flex; align-items: center; gap: 14px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+.test-avatar {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--crimson), var(--crimson-deep));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display);
+  font-weight: 700; font-size: 18px; color: var(--white);
+}
+.test-name {
+  font-weight: 600; font-size: 15px; color: #1D1A16;
+}
+.test-role { font-size: 13px; color: #6E675C; }
+
+/* ================================================================
+   TEAM
+   ================================================================ */
+.team-section {
+  background: linear-gradient(180deg, #FFFFFF, #F8F6F3);
+}
+.team-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 28px;
+}
+.team-card {
+  display: flex; gap: 32px;
+  background: #FFFFFF;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 24px;
+  padding: 36px;
+  transition: all 0.5s var(--ease-out-expo);
+}
+.team-card:hover {
+  border-color: rgba(196,30,58,0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.06);
+}
+.team-photo {
+  width: 150px; height: 200px;
+  border-radius: 18px; overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+.team-photo img { width: 100%; height: 100%; object-fit: cover; }
+.team-info { display: flex; flex-direction: column; justify-content: center; }
+.team-info h3 {
+  font-family: var(--display);
+  font-size: 26px; font-weight: 600;
+  color: #1D1A16; margin-bottom: 4px;
+}
+.team-role-label {
+  font-size: 13px; font-weight: 600;
+  color: var(--crimson); margin-bottom: 16px;
+  letter-spacing: 0.5px;
+}
+.team-quote {
+  font-size: 14px; color: #6E675C;
+  font-style: italic; line-height: 1.65;
+  margin-bottom: 20px; font-weight: 300;
+}
+.team-tags { display: flex; gap: 8px; }
+.team-tag {
+  background: rgba(196,30,58,0.06);
+  border: 1px solid rgba(196,30,58,0.1);
+  color: var(--crimson);
+  padding: 6px 14px; border-radius: 50px;
+  font-size: 12px; font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* ================================================================
+   BOOKING FORM — PREMIUM GLASS
+   ================================================================ */
+.booking-section {
+  background: #F8F6F3;
+  position: relative;
+  overflow: hidden;
+}
+.booking-section::before {
+  content: '';
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(196,30,58,0.04), transparent 60%);
+}
+.booking-layout {
+  display: grid; grid-template-columns: 1fr 1.1fr;
+  gap: 64px; align-items: start;
+}
+.booking-info h2 {
+  font-family: var(--display);
+  font-size: clamp(36px, 3.5vw, 52px);
+  font-weight: 400; color: #1D1A16;
+  line-height: 1.12; margin-bottom: 20px;
+}
+.booking-info h2 strong { font-weight: 700; font-style: italic; }
+.booking-info p {
+  font-size: 17px; color: #6E675C;
+  line-height: 1.8; margin-bottom: 32px; font-weight: 300;
+}
+.booking-contact-items { display: flex; flex-direction: column; gap: 20px; }
+.booking-contact-item {
+  display: flex; align-items: center; gap: 18px;
+}
+.bci-icon {
+  width: 52px; height: 52px;
+  background: rgba(196,30,58,0.06);
+  border: 1px solid rgba(196,30,58,0.1);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.bci-icon svg { width: 22px; height: 22px; color: var(--crimson); }
+.bci-text { font-size: 15px; color: #3A352F; }
+.bci-text a { color: #3A352F; text-decoration: none; transition: color 0.2s; }
+.bci-text a:hover { color: var(--crimson); }
+.bci-label { font-size: 12px; color: #6E675C; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; display: block; margin-bottom: 2px; }
+
+/* The Form */
+.booking-form-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 28px;
+  padding: 48px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.06);
+  position: relative;
+}
+.booking-form-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--crimson), var(--gold), var(--crimson));
+  border-radius: 28px 28px 0 0;
+}
+.form-title {
+  font-family: var(--display);
+  font-size: 28px; font-weight: 600;
+  color: #1D1A16; margin-bottom: 8px;
+}
+.form-subtitle {
+  font-size: 14px; color: #6E675C;
+  margin-bottom: 36px; font-weight: 300;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.form-group { margin-bottom: 0; }
+.form-group.full { grid-column: 1 / -1; }
+.form-label {
+  display: block;
+  font-size: 12px; font-weight: 700;
+  color: #6E675C;
+  letter-spacing: 0.8px; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  background: #F8F6F3;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 14px;
+  padding: 16px 20px;
+  color: #1D1A16;
+  font-family: var(--body);
+  font-size: 15px; font-weight: 400;
+  transition: all 0.3s var(--ease-smooth);
+  outline: none;
+}
+.form-input::placeholder { color: #9B9488; }
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--crimson);
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(196,30,58,0.08);
+}
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236E675C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 44px;
+  cursor: pointer;
+}
+.form-select option { background: #FFFFFF; color: #1D1A16; }
+.form-textarea { resize: vertical; min-height: 100px; }
+.form-submit {
+  width: 100%;
+  background: linear-gradient(135deg, var(--crimson), var(--crimson-deep));
+  color: var(--white);
+  padding: 18px 32px;
+  border: none; border-radius: 14px;
+  font-family: var(--body);
+  font-size: 16px; font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.4s var(--ease-out-expo);
+  box-shadow: 0 4px 24px rgba(212,43,43,0.3);
+  margin-top: 8px;
+  position: relative; overflow: hidden;
+}
+.form-submit::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--crimson-glow), var(--crimson));
+  opacity: 0; transition: opacity 0.3s;
+}
+.form-submit span { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.form-submit:hover::before { opacity: 1; }
+.form-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 36px rgba(212,43,43,0.5);
+}
+.form-submit svg { width: 18px; height: 18px; position: relative; z-index: 1; }
+.form-note {
+  text-align: center; margin-top: 16px;
+  font-size: 12px; color: #9B9488;
+}
+.form-note svg { width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px; color: #6E675C; }
+
+/* ================================================================
+   FAQ — ACCORDION
+   ================================================================ */
+.faq-section { background: #FFFFFF; }
+.faq-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.faq-item {
+  background: #F8F6F3;
+  border: 1px solid rgba(0,0,0,0.04);
+  border-radius: 18px;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+.faq-item:hover { border-color: rgba(0,0,0,0.1); }
+.faq-item.open { border-color: rgba(196,30,58,0.15); background: rgba(196,30,58,0.02); }
+.faq-q {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 24px 28px;
+  cursor: pointer; background: none; border: none; width: 100%;
+  text-align: left; font-family: var(--body);
+  font-size: 15px; font-weight: 600; color: #2E2A25;
+  transition: color 0.2s;
+}
+.faq-q:hover { color: var(--crimson); }
+.faq-q svg {
+  width: 20px; height: 20px; flex-shrink: 0;
+  color: #9B9488;
+  transition: all 0.4s var(--ease-out-expo);
+}
+.faq-item.open .faq-q svg { transform: rotate(180deg); color: var(--crimson); }
+.faq-a {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.4s var(--ease-smooth);
+}
+.faq-item.open .faq-a { max-height: 200px; }
+.faq-a p {
+  padding: 0 28px 24px;
+  font-size: 14px; color: #6E675C;
+  line-height: 1.75; font-weight: 300;
+}
+
+/* ================================================================
+   CTA — CINEMATIC
+   ================================================================ */
+.cta-section {
+  position: relative; z-index: 2;
+  padding: 120px 48px;
+  text-align: center;
+  overflow: hidden;
+}
+.cta-section::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at center, rgba(196,30,58,0.06) 0%, transparent 60%),
+    linear-gradient(180deg, #F8F6F3 0%, #F1EDE8 50%, #F8F6F3 100%);
+}
+.cta-content { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+.cta-content h2 {
+  font-family: var(--display);
+  font-size: clamp(40px, 5vw, 64px);
+  font-weight: 400; color: #1D1A16;
+  line-height: 1.1; margin-bottom: 20px;
+}
+.cta-content h2 strong { font-weight: 700; font-style: italic; color: var(--crimson); }
+.cta-content p {
+  font-size: 18px; color: #6E675C;
+  margin-bottom: 40px; font-weight: 300;
+}
+.btn-cta-huge {
+  display: inline-flex; align-items: center; gap: 14px;
+  background: linear-gradient(135deg, var(--crimson), var(--crimson-deep));
+  color: var(--white);
+  padding: 22px 48px;
+  border-radius: 60px;
+  font-size: 18px; font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 6px 32px rgba(212,43,43,0.4);
+  transition: all 0.4s var(--ease-out-expo);
+  position: relative; overflow: hidden;
+}
+.btn-cta-huge::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--crimson-glow), var(--crimson));
+  opacity: 0; transition: opacity 0.3s;
+}
+.btn-cta-huge:hover::before { opacity: 1; }
+.btn-cta-huge:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 48px rgba(212,43,43,0.55);
+}
+.btn-cta-huge span, .btn-cta-huge svg { position: relative; z-index: 1; }
+.btn-cta-huge svg { width: 20px; height: 20px; }
+
+/* ================================================================
+   FOOTER
+   ================================================================ */
+.footer {
+  background: #0F1923;
+  border-top: 1px solid rgba(255,255,255,0.04);
+  position: relative; z-index: 2;
+}
+.footer-inner {
+  max-width: 1360px; margin: 0 auto;
+  padding: 72px 48px 40px;
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1.2fr;
+  gap: 48px;
+}
+.footer-brand p {
+  font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.7;
+  margin-top: 18px; max-width: 300px; font-weight: 300;
+}
+.footer h4 {
+  font-family: var(--display);
+  font-size: 18px; font-weight: 600;
+  color: #FFFFFF; margin-bottom: 22px;
+}
+.footer ul { list-style: none; }
+.footer ul li { margin-bottom: 10px; }
+.footer ul a {
+  color: rgba(255,255,255,0.5); text-decoration: none;
+  font-size: 14px; font-weight: 400;
+  transition: all 0.2s;
+}
+.footer ul a:hover { color: #FFFFFF; padding-left: 4px; }
+.footer-contact li {
+  display: flex; align-items: center; gap: 12px;
+}
+.footer-contact svg { width: 16px; height: 16px; color: var(--crimson); flex-shrink: 0; }
+.footer-bottom {
+  max-width: 1360px; margin: 0 auto;
+  padding: 28px 48px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 13px; color: rgba(255,255,255,0.3);
+}
+.footer-emergency {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(196,30,58,0.1);
+  border: 1px solid rgba(196,30,58,0.2);
+  color: #E02040;
+  padding: 10px 20px; border-radius: 50px;
+  font-weight: 600; font-size: 13px;
+}
+.footer-emergency svg { width: 16px; height: 16px; }
+
+/* CodeXio Credit */
+.footer .nav-logo-text { color: #FFFFFF; }
+.codexio-bar {
+  background: #0A0E13;
+  border-top: 1px solid rgba(255,255,255,0.03);
+  padding: 16px 48px;
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  position: relative; z-index: 2;
+}
+.codexio-bar span {
+  font-size: 12px; color: rgba(255,255,255,0.25);
+  letter-spacing: 0.5px;
+}
+.codexio-bar a {
+  display: inline-flex; opacity: 0.5;
+  transition: opacity 0.3s;
+}
+.codexio-bar a:hover { opacity: 0.9; }
+.codexio-bar img { height: 22px; width: auto; }
+
+/* ================================================================
+   SCROLL REVEAL
+   ================================================================ */
+.reveal {
+  opacity: 0; transform: translateY(40px);
+  transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+
+/* ================================================================
+   RESPONSIVE
+   ================================================================ */
+@media (max-width: 1024px) {
+  .hero-content { grid-template-columns: 1fr; gap: 48px; }
+  .hero-right { display: none; }
+  .immersive { grid-template-columns: 1fr; }
+  .immersive-image { min-height: 400px; }
+  .immersive-content { padding: 60px 40px; }
+  .booking-layout { grid-template-columns: 1fr; }
+  .kurse-grid { grid-template-columns: repeat(2, 1fr); }
+  .footer-inner { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .nav-hamburger { display: block; }
+  .nav-inner { padding: 10px 10px 10px 20px; border-radius: 20px; }
+  .nav { padding: 12px 16px; }
+  .section { padding: 80px 20px; }
+  .stats-strip { padding: 0 16px; margin-top: -40px; }
+  .stats-inner { grid-template-columns: repeat(2, 1fr); border-radius: 18px; }
+  .stat-item { padding: 28px 16px; }
+  .stat-number { font-size: 36px; }
+  .usp-grid { grid-template-columns: 1fr; }
+  .process-step {
+    grid-template-columns: 60px 1fr;
+  }
+  .process-step .ps-spacer { display: none; }
+  .process-step:nth-child(even) .ps-content { grid-column: 2; text-align: left; }
+  .ps-center { grid-column: 1; }
+  .ps-content { grid-column: 2; }
+  .process-section::before { left: 48px; }
+  .kurse-grid { grid-template-columns: 1fr; }  .test-grid { grid-template-columns: 1fr; }
+  .team-grid { grid-template-columns: 1fr; }
+  .team-card { flex-direction: column; align-items: center; text-align: center; }
+  .team-tags { justify-content: center; }
+  .faq-grid { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .booking-form-card { padding: 32px 24px; }
+  .footer-inner { grid-template-columns: 1fr; }
+  .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+  .hero-content { padding: 140px 24px 80px; }
+  .hero h1 { font-size: clamp(36px, 8vw, 56px); }
+  .immersive-content { padding: 48px 24px; }
+  .immersive-content::before { display: none; }
+  .cta-section { padding: 80px 24px; }
+}
+
+/* ================================================================
+   ANIMATIONS
+   ================================================================ */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- PARTICLES -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- CUSTOM CURSOR -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#vorteile" onclick="closeMobile()">Vorteile</a>
+  <a href="#ablauf" onclick="closeMobile()">Ablauf</a>
+  <a href="#kurse" onclick="closeMobile()">Kurse</a>
+  <a href="#team" onclick="closeMobile()">Team</a>
+  <a href="#faq" onclick="closeMobile()">FAQ</a>
+  <a href="#buchen" onclick="closeMobile()" style="color:var(--crimson-glow)">Jetzt Buchen</a>
+</div>
+
+<!-- NAVBAR -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-mark"><span>N</span></div>
+      <div class="nav-logo-text">Nothelfer<em>Zentrum</em></div>
+    </a>
+    <div class="nav-links">
+      <a href="#vorteile">Vorteile</a>
+      <a href="#ablauf">Ablauf</a>
+      <a href="#kurse">Kurse</a>
+      <a href="#team">Team</a>
+      <a href="#faq">FAQ</a>
+      <a href="#buchen" class="nav-cta">Jetzt Buchen</a>
+    </div>
+    <button class="nav-hamburger" id="hamburger" aria-label="Menü">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section class="hero">
+  <div class="hero-media">
+    <img src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=1800&q=80" alt="Erste Hilfe Kurs Seminar">
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-vignette"></div>
+  <div class="hero-grain"></div>
+
+  <div class="hero-content">
+    <div class="hero-left">
+      <div class="hero-badge">
+        <div class="hero-badge-dot"></div>
+        <span>Zertifiziert & vom Bund anerkannt</span>
+      </div>
+      <h1>Weil jede Sekunde <strong>Leben rettet</strong></h1>
+      <div class="hero-divider"></div>
+      <p class="hero-desc">Professionelle Erste-Hilfe-Ausbildung an 13 Standorten schweizweit. Praxisnah, zertifiziert und in nur einem Tag zum lebensrettenden Wissen.</p>
+      <div class="hero-actions">
+        <a href="#buchen" class="btn-hero btn-hero-primary">
+          <span>Kurs buchen</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#ablauf" class="btn-hero btn-hero-ghost">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"/></svg>
+          So läuft's ab
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="hero-cards">
+        <div class="hero-card">
+          <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&q=80" alt="Teilnehmer im Erste-Hilfe-Kurs">
+          <div class="hero-card-overlay"></div>
+          <div class="hero-card-label">Kurs-Atmosphäre</div>
+        </div>
+        <div class="hero-card">
+          <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&q=80" alt="Workshop Training">
+          <div class="hero-card-overlay"></div>
+          <div class="hero-card-label">Praxis-Workshop</div>
+        </div>
+        <div class="hero-card">
+          <img src="https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=400&q=80" alt="Teamarbeit im Kurs">
+          <div class="hero-card-overlay"></div>
+          <div class="hero-card-label">Teamwork</div>
+        </div>
+
+        <!-- Floating Stats -->
+        <div class="hero-floating-stat">
+          <div class="hfs-number">98<em>%</em></div>
+          <div class="hfs-label">Zufriedenheit</div>
+        </div>
+        <div class="hero-floating-stat">
+          <div class="hfs-number">832<em>+</em></div>
+          <div class="hfs-label">Absolventen / Jahr</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE TICKER -->
+<div class="marquee">
+  <div class="marquee-track">
+    <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Vom Bund Zertifiziert</div>
+    <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>13 Standorte Schweizweit</div>
+    <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Max. 12 Teilnehmer</div>
+    <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Kurs in nur einem Tag</div>
+    <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>6+ Jahre Erfahrung</div>
+    <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Führerschein Anerkannt</div>
+    <!-- Duplicate for seamless -->
+    <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Vom Bund Zertifiziert</div>
+    <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>13 Standorte Schweizweit</div>
+    <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Max. 12 Teilnehmer</div>
+    <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Kurs in nur einem Tag</div>
+    <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>6+ Jahre Erfahrung</div>
+    <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Führerschein Anerkannt</div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stats-inner">
+    <div class="stat-item reveal">
+      <div class="stat-number">832<span>+</span></div>
+      <div class="stat-label">Absolventen pro Jahr</div>
+    </div>
+    <div class="stat-item reveal reveal-delay-1">
+      <div class="stat-number">13</div>
+      <div class="stat-label">Standorte</div>
+    </div>
+    <div class="stat-item reveal reveal-delay-2">
+      <div class="stat-number">98<span>%</span></div>
+      <div class="stat-label">Zufriedenheitsrate</div>
+    </div>
+    <div class="stat-item reveal reveal-delay-3">
+      <div class="stat-number">6<span>+</span></div>
+      <div class="stat-label">Jahre Erfahrung</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     WARUM WIR
+     ============================================================ -->
+<section class="usp-section" id="vorteile">
+  <div class="section">
+    <div class="section-header">
+      <div class="section-tag">Darum wir</div>
+      <h2 class="section-title">Was uns <strong>auszeichnet</strong></h2>
+      <p class="section-subtitle">Professionelle Erste-Hilfe-Ausbildung, die wirklich vorbereitet — praxisnah, zertifiziert und persönlich.</p>
+    </div>
+    <div class="usp-grid">
+      <div class="usp-card reveal">
+        <div class="usp-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h3>Erfahrene Instruktoren</h3>
+        <p>Alle Kursleiter sind zertifiziert und bringen jahrelange Praxiserfahrung aus dem Rettungsdienst mit.</p>
+      </div>
+      <div class="usp-card reveal reveal-delay-1">
+        <div class="usp-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <h3>13 Standorte</h3>
+        <p>Von Zürich über Bern bis St. Gallen — immer ein Kursort ganz in deiner Nähe.</p>
+      </div>
+      <div class="usp-card reveal reveal-delay-2">
+        <div class="usp-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h3>Flexible Termine</h3>
+        <p>Regelmässige Kurse am Wochenende und Abend, damit es in deinen Zeitplan passt.</p>
+      </div>
+      <div class="usp-card reveal reveal-delay-3">
+        <div class="usp-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>Vom Bund anerkannt</h3>
+        <p>Offizielle Zertifikate — gültig für den Führerschein und 6 Jahre lang anerkannt.</p>
+      </div>
+      <div class="usp-card reveal reveal-delay-4">
+        <div class="usp-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </div>
+        <h3>Kleine Gruppen</h3>
+        <p>Max. 12 Teilnehmer pro Kurs für individuelle Betreuung und intensive Praxis.</p>
+      </div>
+      <div class="usp-card reveal reveal-delay-5">
+        <div class="usp-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        <h3>Persönlicher Support</h3>
+        <p>Unser Team ist für dich da — vor, während und nach dem Kurs.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     ABLAUF — TIMELINE
+     ============================================================ -->
+<section class="process-section" id="ablauf">
+  <div class="section">
+    <div class="section-header center">
+      <div class="section-tag">In 4 Schritten</div>
+      <h2 class="section-title">So läuft dein <strong>Kurs ab</strong></h2>
+      <p class="section-subtitle">Vom Anmelden bis zum Zertifikat — einfach, schnell und unkompliziert.</p>
+    </div>
+    <div class="process-timeline">
+      <div class="process-step reveal">
+        <div class="ps-content" style="text-align:right;">
+          <h3>Anmelden</h3>
+          <p>Wähle Termin und Standort. Die Online-Buchung dauert nur 2 Minuten.</p>
+        </div>
+        <div class="ps-center"><div class="ps-number">1</div></div>
+        <div class="ps-spacer"></div>
+      </div>
+      <div class="process-step reveal">
+        <div class="ps-spacer"></div>
+        <div class="ps-center"><div class="ps-number">2</div></div>
+        <div class="ps-content">
+          <h3>Vorbereitung</h3>
+          <p>Du erhältst alle Infos per E-Mail. Material wird komplett bereitgestellt.</p>
+        </div>
+      </div>
+      <div class="process-step reveal">
+        <div class="ps-content" style="text-align:right;">
+          <h3>Praxistag</h3>
+          <p>Interaktives Hands-on Training mit erfahrenen Profis in kleiner Gruppe.</p>
+        </div>
+        <div class="ps-center"><div class="ps-number">3</div></div>
+        <div class="ps-spacer"></div>
+      </div>
+      <div class="process-step reveal">
+        <div class="ps-spacer"></div>
+        <div class="ps-center"><div class="ps-number">4</div></div>
+        <div class="ps-content">
+          <h3>Zertifikat</h3>
+          <p>Du erhältst sofort dein offizielles, vom Bund anerkanntes Zertifikat.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     IMMERSIVE SPLIT
+     ============================================================ -->
+<div class="immersive">
+  <div class="immersive-image">
+    <img src="https://images.unsplash.com/photo-1573497620053-ea5300f94f21?w=900&q=80" alt="Erste Hilfe Praxis Training">
+    <div class="immersive-image-overlay"></div>
+  </div>
+  <div class="immersive-content">
+    <div class="section-tag">Praxisnahe Ausbildung</div>
+    <h2 class="section-title" style="margin-bottom:20px;">Mehr als nur <strong>Theorie</strong></h2>
+    <p>Unser Kurs verbindet modernste Techniken mit echten Praxis-Szenarien. Du lernst nicht nur, was zu tun ist — du übst es, bis es sitzt.</p>
+    <ul class="immersive-list">
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Herzdruckmassage (CPR) an professionellen Übungspuppen</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>AED-Defibrillator richtig einsetzen</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Wundversorgung und stabile Seitenlage</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Notfallszenarien: Verkehrsunfall, Herzstillstand, Atemnot</li>
+    </ul>
+    <a href="#buchen" class="btn-inline">
+      Jetzt Platz sichern
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</div>
+
+<!-- ============================================================
+     KURSE
+     ============================================================ -->
+<section class="kurse-section" id="kurse">
+  <div class="section">
+    <div class="section-header">
+      <div class="section-tag">Nächste Termine</div>
+      <h2 class="section-title">Verfügbare <strong>Kurse</strong></h2>
+      <p class="section-subtitle">Wähle deinen Standort und Termin — einfach online buchen.</p>
+    </div>
+    <div class="kurse-grid" id="kurse-grid">
+      <!-- Wird dynamisch vom Backend geladen -->
+    </div>
+    <div class="kurse-show-all" id="kurse-show-all" style="display:none"><a href="#" id="kurse-show-all-link">Alle Termine anzeigen →</a></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     TESTIMONIALS
+     ============================================================ -->
+<section class="testimonials-section">
+  <div class="section">
+    <div class="section-header center">
+      <div class="section-tag">Erfahrungsberichte</div>
+      <h2 class="section-title">Was unsere Teilnehmer <strong>sagen</strong></h2>
+    </div>
+    <div class="test-grid">
+      <div class="test-card reveal">
+        <div class="test-card-quote">"</div>
+        <div class="test-stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+        <p class="test-text">Entspannte Atmosphäre und super Instruktoren. Man merkt sofort, dass die Jungs wissen, was sie tun. Hatte mehr Spass als erwartet!</p>
+        <div class="test-author"><div class="test-avatar">L</div><div><div class="test-name">Laura M.</div><div class="test-role">Kursteilnehmerin, Zürich</div></div></div>
+      </div>
+      <div class="test-card reveal reveal-delay-1">
+        <div class="test-card-quote">"</div>
+        <div class="test-stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+        <p class="test-text">Für den Führerschein gebraucht und viel mehr gelernt als erwartet. Die praktischen Übungen waren top — fühle mich jetzt sicherer.</p>
+        <div class="test-author"><div class="test-avatar">D</div><div><div class="test-name">David K.</div><div class="test-role">Kursteilnehmer, St. Gallen</div></div></div>
+      </div>
+      <div class="test-card reveal reveal-delay-2">
+        <div class="test-card-quote">"</div>
+        <div class="test-stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+        <p class="test-text">Mega professionell, junges Team, lockere Stimmung. Der beste Nothelferkurs, den ich besucht habe. Nur zu empfehlen!</p>
+        <div class="test-author"><div class="test-avatar">S</div><div><div class="test-name">Sarah B.</div><div class="test-role">Kursteilnehmerin, Wil</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     TEAM
+     ============================================================ -->
+<section class="team-section" id="team">
+  <div class="section">
+    <div class="section-header center">
+      <div class="section-tag">Unser Team</div>
+      <h2 class="section-title">Die Profis hinter dem <strong>Kurs</strong></h2>
+      <p class="section-subtitle">Erfahrene Instruktoren mit Leidenschaft für Erste Hilfe.</p>
+    </div>
+    <div class="team-grid">
+      <div class="team-card reveal">
+        <div class="team-photo"><img src="https://nothelferzentrum.ch/wp-content/themes/nothelfer-zentrum-theme/assets/images/metin_alimi.jpeg" alt="Metin Alimi"></div>
+        <div class="team-info">
+          <h3>Metin Alimi</h3>
+          <div class="team-role-label">Nothelfer-Instruktor</div>
+          <p class="team-quote">«Leben retten ist keine Option, es ist eine Pflicht.»</p>
+          <div class="team-tags"><span class="team-tag">CPR</span><span class="team-tag">BLS</span><span class="team-tag">AED</span></div>
+        </div>
+      </div>
+      <div class="team-card reveal reveal-delay-1">
+        <div class="team-photo"><img src="https://nothelferzentrum.ch/wp-content/themes/nothelfer-zentrum-theme/assets/images/aldin_sakiri.jpeg" alt="Aldin Sakiri"></div>
+        <div class="team-info">
+          <h3>Aldin Sakiri</h3>
+          <div class="team-role-label">Nothelfer-Instruktor</div>
+          <p class="team-quote">«Heute lernen, morgen Leben retten.»</p>
+          <div class="team-tags"><span class="team-tag">CPR</span><span class="team-tag">BLS</span><span class="team-tag">AED</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     BOOKING FORM
+     ============================================================ -->
+<section class="booking-section" id="buchen">
+  <div class="section">
+    <div class="booking-layout">
+      <div class="booking-info reveal">
+        <div class="section-tag">Anmeldung</div>
+        <h2>Sichere dir deinen <strong>Platz</strong></h2>
+        <p>Fülle das Formular aus, wähle deinen Wunschtermin und wir bestätigen deine Anmeldung innerhalb von 24 Stunden.</p>
+        <div class="booking-contact-items">
+          <div class="booking-contact-item">
+            <div class="bci-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+            <div class="bci-text"><span class="bci-label">E-Mail</span><a href="/cdn-cgi/l/email-protection#c7aea9a1a887a9a8b3afa2aba1a2b5bda2a9b3b5b2aae9a4af"><span class="__cf_email__" data-cfemail="1871767e775876776c707d747e7d6a627d766c6a6d75367b70">[email&#160;protected]</span></a></div>
+          </div>
+          <div class="booking-contact-item">
+            <div class="bci-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+            <div class="bci-text"><span class="bci-label">Telefon</span><a href="tel:+41789655132">+41 78 965 51 32</a></div>
+          </div>
+          <div class="booking-contact-item">
+            <div class="bci-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+            <div class="bci-text"><span class="bci-label">Adresse</span>Sirnacherstrasse 7, 9500 Wil SG</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="booking-form-card reveal reveal-delay-2">
+        <div class="form-title">Kurs buchen</div>
+        <div class="form-subtitle">Alle Felder mit * sind Pflichtfelder</div>
+        <form id="buchungsform" onsubmit="submitForm(event)">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Vorname *</label>
+              <input type="text" name="vorname" class="form-input" placeholder="Max" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nachname *</label>
+              <input type="text" name="nachname" class="form-input" placeholder="Muster" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">E-Mail *</label>
+              <input type="email" name="email" class="form-input" placeholder="max@beispiel.ch" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Telefon</label>
+              <input type="tel" name="telefon" class="form-input" placeholder="+41 79 000 00 00">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Strasse *</label>
+              <input type="text" name="strasse" class="form-input" placeholder="Musterstrasse 1" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">PLZ / Ort *</label>
+              <input type="text" name="plz_ort" class="form-input" placeholder="9500 Wil" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Kurstermin wählen *</label>
+              <select id="kurstermin-select" name="kurstermin_id" class="form-select" required>
+                <option value="" disabled selected>Termine werden geladen…</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Anzahl Personen *</label>
+              <select name="anzahl_personen" class="form-select" required>
+                <option value="1" selected>1 Person</option>
+                <option value="2">2 Personen</option>
+                <option value="3">3 Personen</option>
+                <option value="4">4 Personen</option>
+                <option value="5">5 Personen</option>
+                <option value="6">6 Personen</option>
+                <option value="7">7 Personen</option>
+                <option value="8">8 Personen</option>
+                <option value="9">9 Personen</option>
+                <option value="10">10 Personen</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full">
+              <label class="form-label">Bemerkungen</label>
+              <textarea name="bemerkungen" class="form-textarea" placeholder="Hast du spezielle Wünsche oder Fragen?"></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="form-submit">
+            <span>
+              Anmeldung absenden
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </span>
+          </button>
+          <div class="form-note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Deine Daten werden vertraulich behandelt und nicht an Dritte weitergegeben.
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FAQ
+     ============================================================ -->
+<section class="faq-section" id="faq">
+  <div class="section">
+    <div class="section-header center">
+      <div class="section-tag">FAQ</div>
+      <h2 class="section-title">Häufig gestellte <strong>Fragen</strong></h2>
+    </div>
+    <div class="faq-grid">
+      <div class="faq-item"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">Wie lange ist das Zertifikat gültig?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a"><p>Das Zertifikat ist 6 Jahre gültig. Danach empfehlen wir einen Refresher-Kurs zur Auffrischung.</p></div></div>
+      <div class="faq-item"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">Kann ich alleine buchen?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a"><p>Ja, absolut! Alle Kurse sind offen für Einzelpersonen und Gruppen gleichermassen.</p></div></div>
+      <div class="faq-item"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">Was muss ich mitbringen?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a"><p>Bequeme Kleidung, flache Schuhe und das Kursgeld in Bar. Alles Material wird bereitgestellt.</p></div></div>
+      <div class="faq-item"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">Ab welchem Alter darf ich teilnehmen?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a"><p>Der Nothelferkurs ist ab 16 Jahren zugelassen. Für Jüngere gibt es spezielle Junior-Kurse.</p></div></div>
+      <div class="faq-item"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">Wie läuft eine Stornierung ab?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a"><p>Bis 4 Tage vor Kursbeginn kostenlos stornierbar. Danach fällt die volle Gebühr an.</p></div></div>
+      <div class="faq-item"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">Gibt es Gutscheine?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a"><p>Ja! Gutscheine sind 12 Monate gültig und ein perfektes Geschenk. Kontaktiere uns einfach.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CTA
+     ============================================================ -->
+<section class="cta-section">
+  <div class="cta-content reveal">
+    <h2>Bereit, <strong>Leben zu retten?</strong></h2>
+    <p>Melde dich jetzt an und werde zur Person, die im Notfall handeln kann.</p>
+    <a href="#buchen" class="btn-cta-huge">
+      <span>Jetzt Platz sichern</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo">
+        <div class="nav-logo-mark"><span>N</span></div>
+        <div class="nav-logo-text">Nothelfer<em>Zentrum</em></div>
+      </a>
+      <p>Beim Nothelferzentrum lernst du in entspannter Atmosphäre alles, was du im Notfall brauchst — praxisnah, verständlich und motivierend.</p>
+    </div>
+    <div>
+      <h4>Navigation</h4>
+      <ul>
+        <li><a href="#vorteile">Vorteile</a></li>
+        <li><a href="#ablauf">Ablauf</a></li>
+        <li><a href="#kurse">Kurse buchen</a></li>
+        <li><a href="#team">Team</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Standorte</h4>
+      <ul>
+        <li><a href="#">Wil SG</a></li>
+        <li><a href="#">Zürich</a></li>
+        <li><a href="#">Bern</a></li>
+        <li><a href="#">St. Gallen</a></li>
+        <li><a href="#">Luzern</a></li>
+        <li><a href="#">+ 8 weitere</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Kontakt</h4>
+      <ul class="footer-contact">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="/cdn-cgi/l/email-protection#95fcfbf3fad5fbfae1fdf0f9f3f0e7eff0fbe1e7e0f8bbf6fd"><span class="__cf_email__" data-cfemail="3a53545c557a54554e525f565c5f48405f544e484f57145952">[email&#160;protected]</span></a></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><a href="tel:+41789655132">+41 78 965 51 32</a></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Sirnacherstrasse 7, 9500 Wil SG</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Nothelfer Zentrum. Alle Rechte vorbehalten.</span>
+    <div class="footer-emergency"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/></svg>Notfall? Ruf 144 an!</div>
+  </div>
+</footer>
+
+<!-- CODEXIO -->
+<div class="codexio-bar">
+  <span>Erstellt durch</span>
+  <a href="https://codexio.ch" target="_blank" rel="noopener"><img src="https://codexio.ch/logo.png" alt="CodeXio"></a>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+// ---- NAVBAR SCROLL ----
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 40));
+
+// ---- MOBILE MENU ----
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobileMenu');
+function closeMobile() {
+  hamburger.classList.remove('open');
+  mobileMenu.classList.remove('open');
+  document.body.style.overflow = '';
+}
+hamburger.addEventListener('click', () => {
+  const isOpen = hamburger.classList.toggle('open');
+  mobileMenu.classList.toggle('open', isOpen);
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+});
+
+// ---- SCROLL REVEAL ----
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// ---- CUSTOM CURSOR (desktop) ----
+if (window.matchMedia('(hover: hover)').matches) {
+  const dot = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; dot.style.left = mx + 'px'; dot.style.top = my + 'px'; });
+  (function animateRing() {
+    rx += (mx - rx) * 0.15; ry += (my - ry) * 0.15;
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    requestAnimationFrame(animateRing);
+  })();
+  document.querySelectorAll('a, button, .kurs-card, .usp-card, .test-card').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+  });
+} else {
+  const d = document.getElementById('cursorDot');
+  const r = document.getElementById('cursorRing');
+  if (d) d.style.display = 'none';
+  if (r) r.style.display = 'none';
+}
+
+// ---- PARTICLE CANVAS ----
+(function() {
+  const canvas = document.getElementById('particles-canvas');
+  const ctx = canvas.getContext('2d');
+  let w, h, particles = [];
+  function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+  const PARTICLE_COUNT = Math.min(60, Math.floor(window.innerWidth / 25));
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    particles.push({
+      x: Math.random() * w, y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3,
+      r: Math.random() * 1.5 + 0.5
+    });
+  }
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+      if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(196,30,58,0.15)';
+      ctx.fill();
+      for (let j = i + 1; j < particles.length; j++) {
+        const p2 = particles[j];
+        const dx = p.x - p2.x, dy = p.y - p2.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.strokeStyle = `rgba(196,30,58,${0.06 * (1 - dist/120)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+
+<!-- ============================================================
+     BACKEND API — Kurstermine dynamisch laden & Formular
+     ============================================================ -->
+<script>
+// Kurstermine vom Backend laden
+async function ladeKurstermine() {
+  const sel  = document.getElementById('kurstermin-select');
+  const grid = document.getElementById('kurse-grid');
+  const showAll = document.getElementById('kurse-show-all');
+  const svgPin = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
+  const svgCal = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+  const svgUser = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>`;
+
+  try {
+    const res    = await fetch('/api/kurstermine');
+    const termine = await res.json();
+
+    // ── Dropdown befüllen ──────────────────────────────────────
+    sel.innerHTML = '<option value="" disabled selected>Termin auswählen…</option>';
+    if (!termine.length) {
+      sel.innerHTML = '<option value="" disabled selected>Aktuell keine Termine verfügbar</option>';
+    } else {
+      termine.forEach(t => {
+        const von  = new Date(t.datum_von).toLocaleDateString('de-CH', { day:'2-digit', month:'2-digit', year:'numeric' });
+        const bis  = new Date(t.datum_bis).toLocaleDateString('de-CH', { day:'2-digit', month:'2-digit', year:'numeric' });
+        const frei = t.max_plaetze - t.gebuchte_plaetze;
+        const opt  = document.createElement('option');
+        opt.value  = t.id;
+        opt.textContent = `${von} – ${bis} — ${t.standort}${t.beschreibung ? ' (' + t.beschreibung + ')' : ''} | noch ${frei} Plätze`;
+        if (frei <= 0) { opt.disabled = true; opt.textContent += ' — AUSGEBUCHT'; }
+        sel.appendChild(opt);
+      });
+    }
+
+    // ── Kurse-Grid befüllen ────────────────────────────────────
+    if (!grid) return;
+    if (!termine.length) {
+      grid.innerHTML = '<p style="color:#9B9488;grid-column:1/-1;text-align:center;padding:40px 0">Aktuell sind keine Termine verfügbar.</p>';
+      return;
+    }
+
+    const delays = ['', 'reveal-delay-1', 'reveal-delay-2', 'reveal-delay-3', 'reveal-delay-4', 'reveal-delay-5'];
+    // Ausgebuchte Termine ausblenden
+    const verfuegbar = termine.filter(t => (t.max_plaetze - t.gebuchte_plaetze) > 0);
+    // Nur die ersten 6 Karten anzeigen, Rest per "Alle anzeigen"
+    const sichtbar = verfuegbar.slice(0, 6);
+    const versteckt = verfuegbar.slice(6);
+
+    if (!verfuegbar.length) {
+      grid.innerHTML = '<p style="color:#9B9488;grid-column:1/-1;text-align:center;padding:40px 0">Aktuell sind keine Termine verfügbar.</p>';
+      return;
+    }
+
+    grid.innerHTML = '';
+    sichtbar.forEach((t, i) => {
+      const von  = new Date(t.datum_von).toLocaleDateString('de-CH', { weekday:'short', day:'2-digit', month:'long', year:'numeric' });
+      const bis  = new Date(t.datum_bis).toLocaleDateString('de-CH', { weekday:'short', day:'2-digit', month:'long', year:'numeric' });
+      const frei = t.max_plaetze - t.gebuchte_plaetze;
+      const prozentBelegt = Math.round((t.gebuchte_plaetze / t.max_plaetze) * 100);
+      const ausgebucht = frei <= 0;
+      const card = document.createElement('div');
+      card.className = `kurs-card reveal ${delays[i % delays.length]}`;
+      card.innerHTML = `
+        <div class="kurs-top">
+          <div class="kurs-location-badge">${svgPin}${t.standort}</div>
+          ${t.beschreibung ? `<div class="kurs-price" style="font-size:13px;color:#9B9488">${t.beschreibung}</div>` : ''}
+        </div>
+        <div class="kurs-details">
+          <div class="kurs-detail">${svgCal}${von}${von !== bis ? ' – ' + bis : ''}</div>
+          <div class="kurs-detail">${svgUser}
+            <div class="kurs-spots">
+              <span class="kurs-spots-text">${frei} / ${t.max_plaetze} frei${ausgebucht ? ' — AUSGEBUCHT' : ''}</span>
+              <div class="kurs-bar"><div class="kurs-bar-fill" style="width:${prozentBelegt}%"></div></div>
+            </div>
+          </div>
+        </div>
+        <button class="kurs-book-btn" ${ausgebucht ? 'disabled style="opacity:.5;cursor:not-allowed"' : `onclick="buecheTermin(${t.id})"`}>
+          <span>${ausgebucht ? 'Ausgebucht' : 'Jetzt Buchen'}</span>
+        </button>`;
+      grid.appendChild(card);
+    });
+
+    // Scroll-Reveal für neue Cards registrieren
+    grid.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    // "Alle anzeigen"-Button
+    if (versteckt.length > 0 && showAll) {
+      showAll.style.display = '';
+      document.getElementById('kurse-show-all-link').textContent = `Alle ${termine.length} Termine anzeigen →`;
+      document.getElementById('kurse-show-all-link').onclick = (e) => {
+        e.preventDefault();
+        versteckt.forEach((t, i) => {
+          const von  = new Date(t.datum_von).toLocaleDateString('de-CH', { weekday:'short', day:'2-digit', month:'long', year:'numeric' });
+          const bis  = new Date(t.datum_bis).toLocaleDateString('de-CH', { weekday:'short', day:'2-digit', month:'long', year:'numeric' });
+          const frei = t.max_plaetze - t.gebuchte_plaetze;
+          const prozentBelegt = Math.round((t.gebuchte_plaetze / t.max_plaetze) * 100);
+          const ausgebucht = frei <= 0;
+          const card = document.createElement('div');
+          card.className = `kurs-card reveal ${delays[(sichtbar.length + i) % delays.length]}`;
+          card.innerHTML = `
+            <div class="kurs-top">
+              <div class="kurs-location-badge">${svgPin}${t.standort}</div>
+              ${t.beschreibung ? `<div class="kurs-price" style="font-size:13px;color:#9B9488">${t.beschreibung}</div>` : ''}
+            </div>
+            <div class="kurs-details">
+              <div class="kurs-detail">${svgCal}${von}${von !== bis ? ' – ' + bis : ''}</div>
+              <div class="kurs-detail">${svgUser}
+                <div class="kurs-spots">
+                  <span class="kurs-spots-text">${frei} / ${t.max_plaetze} frei${ausgebucht ? ' — AUSGEBUCHT' : ''}</span>
+                  <div class="kurs-bar"><div class="kurs-bar-fill" style="width:${prozentBelegt}%"></div></div>
+                </div>
+              </div>
+            </div>
+            <button class="kurs-book-btn" ${ausgebucht ? 'disabled style="opacity:.5;cursor:not-allowed"' : `onclick="buecheTermin(${t.id})"`}>
+              <span>${ausgebucht ? 'Ausgebucht' : 'Jetzt Buchen'}</span>
+            </button>`;
+          grid.appendChild(card);
+          revealObserver.observe(card);
+        });
+        showAll.style.display = 'none';
+      };
+    }
+
+  } catch(e) {
+    sel.innerHTML = '<option value="" disabled selected>Fehler beim Laden der Termine</option>';
+    if (grid) grid.innerHTML = '<p style="color:#ef4444;grid-column:1/-1;text-align:center;padding:40px 0">Termine konnten nicht geladen werden.</p>';
+  }
+}
+
+// Termin auswählen und zum Formular scrollen
+function buecheTermin(terminId) {
+  const sel = document.getElementById('kurstermin-select');
+  sel.value = terminId;
+  document.getElementById('buchen').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Formular absenden
+async function submitForm(e) {
+  e.preventDefault();
+  const form = document.getElementById('buchungsform');
+  const btn  = form.querySelector('.form-submit');
+  const note = form.querySelector('.form-note');
+
+  btn.disabled = true;
+  btn.querySelector('span').textContent = 'Wird gesendet…';
+
+  const data = {
+    vorname:         form.querySelector('[name="vorname"]').value,
+    nachname:        form.querySelector('[name="nachname"]').value,
+    email:           form.querySelector('[name="email"]').value,
+    telefon:         form.querySelector('[name="telefon"]').value,
+    strasse:         form.querySelector('[name="strasse"]').value,
+    plz_ort:         form.querySelector('[name="plz_ort"]').value,
+    kurstermin_id:   form.querySelector('[name="kurstermin_id"]').value,
+    anzahl_personen: form.querySelector('[name="anzahl_personen"]').value,
+    bemerkungen:     form.querySelector('[name="bemerkungen"]').value,
+  };
+
+  try {
+    const res = await fetch('/api/anmeldungen', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(data),
+    });
+    const json = await res.json();
+    if (res.ok) {
+      form.innerHTML = `
+        <div style="text-align:center;padding:40px 20px">
+          <div style="width:64px;height:64px;background:linear-gradient(135deg,#22c55e,#16a34a);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px">✓</div>
+          <h3 style="font-size:24px;font-weight:700;margin-bottom:12px">Anmeldung erfolgreich!</h3>
+          <p style="color:#6E675C;line-height:1.7">Vielen Dank! Eine Bestätigung wurde an <strong>${data.email}</strong> gesendet.<br>Wir freuen uns auf dich!</p>
+        </div>`;
+    } else {
+      btn.disabled = false;
+      btn.querySelector('span').innerHTML = 'Anmeldung absenden <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
+      alert('Fehler: ' + (json.error || 'Unbekannter Fehler'));
+    }
+  } catch(err) {
+    btn.disabled = false;
+    btn.querySelector('span').innerHTML = 'Anmeldung absenden <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
+    alert('Verbindungsfehler. Bitte versuche es erneut.');
+  }
+}
+
+// Beim Laden ausführen
+ladeKurstermine();
+</script>
+
+</body>
+</html>
