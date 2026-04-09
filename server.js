@@ -12,6 +12,7 @@ const nodemailer    = require('nodemailer');
 const Database      = require('better-sqlite3');
 const path          = require('path');
 const fs            = require('fs');
+const dns           = require('dns');
 
 // ─── CONFIG ────────────────────────────────────────────────────────────────
 const config = require('./config.js');
@@ -70,10 +71,15 @@ const transporter = nodemailer.createTransport({
   host:   config.smtp.host,
   port:   config.smtp.port,
   secure: config.smtp.secure,
-  family: 4,  // IPv4 erzwingen (Railway blockiert IPv6)
   auth: {
     user: config.smtp.user,
     pass: config.smtp.pass,
+  },
+  dnsLookup: (hostname, options, callback) => {
+    dns.resolve4(hostname, (err, addresses) => {
+      if (err) return callback(err);
+      callback(null, addresses[0], 4);
+    });
   },
 });
 
