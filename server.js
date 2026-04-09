@@ -70,6 +70,7 @@ const transporter = nodemailer.createTransport({
   host:   config.smtp.host,
   port:   config.smtp.port,
   secure: config.smtp.secure,
+  family: 4,  // IPv4 erzwingen (Railway blockiert IPv6)
   auth: {
     user: config.smtp.user,
     pass: config.smtp.pass,
