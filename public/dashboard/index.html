@@ -226,6 +226,10 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
     </div>
     <div class="form-row">
       <div class="form-group">
+        <label class="fl">Preis (z.B. CHF 180.–)</label>
+        <input type="text" id="t-preis" class="inp" placeholder="CHF 180.–">
+      </div>
+      <div class="form-group">
         <label class="fl">Max. Plätze</label>
         <input type="number" id="t-plaetze" class="inp" value="20" min="1">
       </div>
@@ -354,6 +358,7 @@ async function loadTermine() {
       <td>${fmtDate(t.datum_von)} – ${fmtDate(t.datum_bis)}</td>
       <td>${t.standort}</td>
       <td>${t.beschreibung || '—'}</td>
+      <td>${t.preis || '—'}</td>
       <td>${t.gebuchte_plaetze} / ${t.max_plaetze}</td>
       <td><span class="badge ${t.aktiv ? 'badge-aktiv' : 'badge-inaktiv'}">${t.aktiv ? 'Aktiv' : 'Inaktiv'}</span></td>
       <td class="td-actions">
@@ -362,7 +367,7 @@ async function loadTermine() {
         <button class="btn btn-danger btn-sm" onclick="deleteTermin(${t.id})">Löschen</button>
       </td>
     </tr>`).join('');
-  wrap.innerHTML = `<table><thead><tr><th>Datum</th><th>Standort</th><th>Beschreibung</th><th>Plätze</th><th>Status</th><th>Aktionen</th></tr></thead><tbody>${rows}</tbody></table>`;
+  wrap.innerHTML = `<table><thead><tr><th>Datum</th><th>Standort</th><th>Beschreibung</th><th>Preis</th><th>Plätze</th><th>Status</th><th>Aktionen</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 let _termine_cache = [];
@@ -374,7 +379,8 @@ function openTerminModal(data = null) {
   document.getElementById('t-bis').value         = data ? data.datum_bis.slice(0,10) : '';
   document.getElementById('t-standort').value    = data ? data.standort : '';
   document.getElementById('t-beschreibung').value = data ? data.beschreibung : '';
-  document.getElementById('t-plaetze').value     = data ? data.max_plaetze : 20;
+  document.getElementById('t-preis').value        = data ? data.preis : '';
+  document.getElementById('t-plaetze').value      = data ? data.max_plaetze : 20;
   document.getElementById('t-aktiv').value       = data ? data.aktiv : 1;
   document.getElementById('t-aktiv-group').style.display = data ? 'block' : 'none';
   document.getElementById('terminModal').classList.add('open');
@@ -397,6 +403,7 @@ async function saveTermin() {
     datum_bis:    document.getElementById('t-bis').value,
     standort:     document.getElementById('t-standort').value,
     beschreibung: document.getElementById('t-beschreibung').value,
+    preis:        document.getElementById('t-preis').value,
     max_plaetze:  parseInt(document.getElementById('t-plaetze').value),
     aktiv:        document.getElementById('t-aktiv').value === '1',
   };

@@ -915,6 +915,44 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 6px 28px rgba(212,43,43,0.4);
 }
+/* ── Buchungs-Modal ─────────────────────────────────────────── */
+.buch-modal-bg {
+  display: none; position: fixed; inset: 0; z-index: 9000;
+  background: rgba(29,26,22,0.6); backdrop-filter: blur(6px);
+  align-items: center; justify-content: center; padding: 24px;
+}
+.buch-modal-bg.open { display: flex; }
+.buch-modal {
+  background: #FFFFFF; border-radius: 28px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.18);
+  width: 100%; max-width: 620px;
+  max-height: 90vh; overflow-y: auto;
+  padding: 40px;
+  position: relative;
+  animation: modalIn 0.35s var(--ease-out-expo);
+}
+@keyframes modalIn {
+  from { opacity:0; transform: translateY(24px) scale(0.97); }
+  to   { opacity:1; transform: none; }
+}
+.buch-modal-close {
+  position: absolute; top: 20px; right: 20px;
+  background: #F1EDE8; border: none; border-radius: 50%;
+  width: 36px; height: 36px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: #6E675C;
+  transition: background 0.2s;
+}
+.buch-modal-close:hover { background: #E8E3DC; }
+.buch-modal-kurs-info {
+  background: #F8F6F3; border-left: 3px solid var(--crimson);
+  border-radius: 12px; padding: 16px 20px; margin-bottom: 28px;
+}
+.buch-modal-kurs-info h3 { font-size: 16px; font-weight: 700; color: #1D1A16; margin-bottom: 4px; }
+.buch-modal-kurs-info p  { font-size: 13px; color: #6E675C; margin: 0; }
+.buch-modal-kurs-preis   { font-size: 22px; font-weight: 700; color: var(--crimson); margin-top: 6px; }
+.buch-modal h2 { font-family: var(--display); font-size: 28px; font-weight: 600; margin-bottom: 6px; color: #1D1A16; }
+.buch-modal .sub { font-size: 13px; color: #9B9488; margin-bottom: 24px; }
 .kurse-show-all {
   text-align: center; margin-top: 48px;
 }
@@ -1794,6 +1832,83 @@ body {
 </section>
 
 <!-- ============================================================
+     BUCHUNGS-MODAL
+     ============================================================ -->
+<div class="buch-modal-bg" id="buchModal">
+  <div class="buch-modal">
+    <button class="buch-modal-close" onclick="closeBuchModal()">✕</button>
+    <h2>Kurs buchen</h2>
+    <p class="sub">Alle Felder mit * sind Pflichtfelder</p>
+    <div class="buch-modal-kurs-info" id="modal-kurs-info">
+      <h3 id="modal-kurs-titel">Kurstermin</h3>
+      <p id="modal-kurs-details"></p>
+      <div class="buch-modal-kurs-preis" id="modal-kurs-preis"></div>
+    </div>
+    <form id="modal-buchungsform" onsubmit="submitModalForm(event)">
+      <input type="hidden" id="modal-kurstermin-id" name="kurstermin_id">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Vorname *</label>
+          <input type="text" name="vorname" class="form-input" placeholder="Max" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nachname *</label>
+          <input type="text" name="nachname" class="form-input" placeholder="Muster" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">E-Mail *</label>
+          <input type="email" name="email" class="form-input" placeholder="max@beispiel.ch" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Telefon</label>
+          <input type="tel" name="telefon" class="form-input" placeholder="+41 79 000 00 00">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Strasse *</label>
+          <input type="text" name="strasse" class="form-input" placeholder="Musterstrasse 1" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">PLZ / Ort *</label>
+          <input type="text" name="plz_ort" class="form-input" placeholder="9500 Wil" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Anzahl Personen *</label>
+          <select name="anzahl_personen" class="form-select" required>
+            <option value="1" selected>1 Person</option>
+            <option value="2">2 Personen</option>
+            <option value="3">3 Personen</option>
+            <option value="4">4 Personen</option>
+            <option value="5">5 Personen</option>
+            <option value="6">6 Personen</option>
+            <option value="7">7 Personen</option>
+            <option value="8">8 Personen</option>
+            <option value="9">9 Personen</option>
+            <option value="10">10 Personen</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bemerkungen</label>
+          <input type="text" name="bemerkungen" class="form-input" placeholder="Fragen oder Wünsche?">
+        </div>
+      </div>
+      <button type="submit" class="form-submit" id="modal-submit-btn">
+        <span>Anmeldung absenden <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></span>
+      </button>
+      <div class="form-note" id="modal-form-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Deine Daten werden vertraulich behandelt und nicht an Dritte weitergegeben.
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============================================================
      BOOKING FORM
      ============================================================ -->
 <section class="booking-section" id="buchen">
@@ -2109,6 +2224,7 @@ async function ladeKurstermine() {
   try {
     const res    = await fetch('/api/kurstermine');
     const termine = await res.json();
+    _alleTermine = termine;
 
     // ── Dropdown befüllen ──────────────────────────────────────
     sel.innerHTML = '<option value="" disabled selected>Termin auswählen…</option>';
@@ -2158,7 +2274,7 @@ async function ladeKurstermine() {
       card.innerHTML = `
         <div class="kurs-top">
           <div class="kurs-location-badge">${svgPin}${t.standort}</div>
-          ${t.beschreibung ? `<div class="kurs-price" style="font-size:13px;color:#9B9488">${t.beschreibung}</div>` : ''}
+          ${t.preis ? `<div class="kurs-price">${t.preis}<small></small></div>` : ''}
         </div>
         <div class="kurs-details">
           <div class="kurs-detail">${svgCal}${von}${von !== bis ? ' – ' + bis : ''}</div>
@@ -2195,7 +2311,7 @@ async function ladeKurstermine() {
           card.innerHTML = `
             <div class="kurs-top">
               <div class="kurs-location-badge">${svgPin}${t.standort}</div>
-              ${t.beschreibung ? `<div class="kurs-price" style="font-size:13px;color:#9B9488">${t.beschreibung}</div>` : ''}
+              ${t.preis ? `<div class="kurs-price">${t.preis}<small></small></div>` : ''}
             </div>
             <div class="kurs-details">
               <div class="kurs-detail">${svgCal}${von}${von !== bis ? ' – ' + bis : ''}</div>
@@ -2222,11 +2338,75 @@ async function ladeKurstermine() {
   }
 }
 
-// Termin auswählen und zum Formular scrollen
+// Modal öffnen beim Klick auf "Jetzt Buchen"
+let _alleTermine = [];
 function buecheTermin(terminId) {
-  const sel = document.getElementById('kurstermin-select');
-  sel.value = terminId;
-  document.getElementById('buchen').scrollIntoView({ behavior: 'smooth' });
+  const t = _alleTermine.find(x => x.id === terminId);
+  if (!t) return;
+  const von = new Date(t.datum_von).toLocaleDateString('de-CH', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+  const bis = new Date(t.datum_bis).toLocaleDateString('de-CH', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+  document.getElementById('modal-kurstermin-id').value = terminId;
+  document.getElementById('modal-kurs-titel').textContent = t.beschreibung || 'Nothelfer Kurs';
+  document.getElementById('modal-kurs-details').textContent = `${von}${von !== bis ? ' – ' + bis : ''} · ${t.standort}`;
+  document.getElementById('modal-kurs-preis').textContent = t.preis || '';
+  // Form zurücksetzen
+  const form = document.getElementById('modal-buchungsform');
+  form.reset();
+  document.getElementById('modal-kurstermin-id').value = terminId;
+  document.getElementById('modal-submit-btn').disabled = false;
+  document.getElementById('modal-submit-btn').querySelector('span').innerHTML = 'Anmeldung absenden <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
+  document.getElementById('modal-form-note').style.display = '';
+  document.getElementById('buchModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeBuchModal() {
+  document.getElementById('buchModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('buchModal').addEventListener('click', function(e) {
+  if (e.target === this) closeBuchModal();
+});
+
+// Modal-Formular absenden
+async function submitModalForm(e) {
+  e.preventDefault();
+  const form = document.getElementById('modal-buchungsform');
+  const btn  = document.getElementById('modal-submit-btn');
+  btn.disabled = true;
+  btn.querySelector('span').textContent = 'Wird gesendet…';
+  const data = {
+    vorname:         form.querySelector('[name="vorname"]').value,
+    nachname:        form.querySelector('[name="nachname"]').value,
+    email:           form.querySelector('[name="email"]').value,
+    telefon:         form.querySelector('[name="telefon"]').value,
+    strasse:         form.querySelector('[name="strasse"]').value,
+    plz_ort:         form.querySelector('[name="plz_ort"]').value,
+    kurstermin_id:   document.getElementById('modal-kurstermin-id').value,
+    anzahl_personen: form.querySelector('[name="anzahl_personen"]').value,
+    bemerkungen:     form.querySelector('[name="bemerkungen"]').value,
+  };
+  try {
+    const res  = await fetch('/api/anmeldungen', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    const json = await res.json();
+    if (res.ok) {
+      form.innerHTML = `
+        <div style="text-align:center;padding:40px 20px">
+          <div style="width:64px;height:64px;background:linear-gradient(135deg,#22c55e,#16a34a);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px">✓</div>
+          <h3 style="font-size:24px;font-weight:700;margin-bottom:12px">Anmeldung erfolgreich!</h3>
+          <p style="color:#6E675C;line-height:1.7">Vielen Dank! Eine Bestätigung wurde an <strong>${data.email}</strong> gesendet.<br>Wir freuen uns auf dich!</p>
+          <button onclick="closeBuchModal()" style="margin-top:24px;padding:14px 32px;background:var(--crimson);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--body)">Schliessen</button>
+        </div>`;
+      ladeKurstermine();
+    } else {
+      btn.disabled = false;
+      btn.querySelector('span').innerHTML = 'Anmeldung absenden <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
+      alert('Fehler: ' + (json.error || 'Unbekannter Fehler'));
+    }
+  } catch(err) {
+    btn.disabled = false;
+    btn.querySelector('span').innerHTML = 'Anmeldung absenden <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
+    alert('Verbindungsfehler. Bitte versuche es erneut.');
+  }
 }
 
 // Formular absenden

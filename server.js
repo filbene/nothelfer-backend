@@ -54,6 +54,9 @@ db.exec(`
   );
 `);
 
+// Preis-Spalte nachrüsten falls noch nicht vorhanden (Migration)
+try { db.exec("ALTER TABLE kurstermine ADD COLUMN preis TEXT DEFAULT ''"); } catch(e) {}
+
 // Standard-Admin anlegen falls nicht vorhanden
 const adminExists = db.prepare('SELECT id FROM admin_users WHERE username = ?').get(config.admin.username);
 if (!adminExists) {
@@ -213,20 +216,21 @@ app.post('/api/admin/kurstermine', requireAuth, (req, res) => {
   if (!datum_von || !datum_bis || !standort) {
     return res.status(400).json({ error: 'datum_von, datum_bis und standort sind Pflichtfelder' });
   }
+  const { preis } = req.body;
   const result = db.prepare(`
-    INSERT INTO kurstermine (datum_von, datum_bis, standort, beschreibung, max_plaetze)
-    VALUES (?, ?, ?, ?, ?)
-  `).run(datum_von, datum_bis, standort, beschreibung || '', max_plaetze || 20);
+    INSERT INTO kurstermine (datum_von, datum_bis, standort, beschreibung, max_plaetze, preis)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).run(datum_von, datum_bis, standort, beschreibung || '', max_plaetze || 20, preis || '');
   res.json({ ok: true, id: result.lastInsertRowid });
 });
 
 // Termin bearbeiten
 app.put('/api/admin/kurstermine/:id', requireAuth, (req, res) => {
-  const { datum_von, datum_bis, standort, beschreibung, max_plaetze, aktiv } = req.body;
+  const { datum_von, datum_bis, standort, beschreibung, max_plaetze, aktiv, preis } = req.body;
   db.prepare(`
-    UPDATE kurstermine SET datum_von=?, datum_bis=?, standort=?, beschreibung=?, max_plaetze=?, aktiv=?
+    UPDATE kurstermine SET datum_von=?, datum_bis=?, standort=?, beschreibung=?, max_plaetze=?, aktiv=?, preis=?
     WHERE id=?
-  `).run(datum_von, datum_bis, standort, beschreibung || '', max_plaetze || 20, aktiv ? 1 : 0, req.params.id);
+  `).run(datum_von, datum_bis, standort, beschreibung || '', max_plaetze || 20, aktiv ? 1 : 0, preis || '', req.params.id);
   res.json({ ok: true });
 });
 
