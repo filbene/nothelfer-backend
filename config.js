@@ -22,8 +22,8 @@ module.exports = {
   // Trage hier deine SMTP-Daten ein:
   smtp: {
     host:         'asmtp.mail.hostpoint.ch',       // z.B. mail.your-server.de
-    port:         465,                       // 587 (TLS) oder 465 (SSL)
-    secure:       true,                     // true für Port 465
+    port:         587,                       // 587 (TLS) oder 465 (SSL)
+    secure:       false,                    // false für Port 587
     user:         'info@nothelferzentrum.ch',
     pass:         process.env.SMTP_PASS || 'Nothelferzentrum123?',
     absenderName: 'Nothelfer Zentrum',
