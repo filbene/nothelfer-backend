@@ -87,6 +87,13 @@ if (!adminExists) {
   db.prepare("UPDATE admin_users SET rolle = 'admin' WHERE username = ?").run(config.admin.username);
 }
 
+// Passwort-Reset via Umgebungsvariable (nur einmalig verwenden, danach Variable entfernen)
+if (process.env.RESET_ADMIN_PASSWORD) {
+  const hash = bcrypt.hashSync(process.env.RESET_ADMIN_PASSWORD, 10);
+  db.prepare('UPDATE admin_users SET password = ? WHERE username = ?').run(hash, config.admin.username);
+  console.log('✓ Admin-Passwort wurde zurückgesetzt (RESET_ADMIN_PASSWORD)');
+}
+
 // ─── MAILER (Resend) ───────────────────────────────────────────────────────
 const resend = new Resend(process.env.RESEND_API_KEY);
 
