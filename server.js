@@ -154,7 +154,7 @@ async function sendeBestaetigung(anmeldung, termin) {
 
   // Bestätigung an Kunde
   await resend.emails.send({
-    from:    'Nothelfer Zentrum <onboarding@resend.dev>',
+    from:    'Nothelfer Zentrum <info@nothelferzentrum.ch>',
     to:      anmeldung.email,
     subject: 'Ihre Kursanmeldung – Nothelfer Zentrum ✓',
     html:    mailHtmlKunde(anmeldung, terminText),
@@ -162,7 +162,7 @@ async function sendeBestaetigung(anmeldung, termin) {
 
   // Info an Betreiber
   await resend.emails.send({
-    from:    'Nothelfer Zentrum <onboarding@resend.dev>',
+    from:    'Nothelfer Zentrum <info@nothelferzentrum.ch>',
     to:      BENACHRICHTIGUNGS_EMPFAENGER,
     subject: `Neue Anmeldung: ${anmeldung.vorname} ${anmeldung.nachname} — ${terminText}`,
     html:    mailHtmlAdmin(anmeldung, terminText),
