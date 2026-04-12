@@ -569,21 +569,24 @@ async function loadTermine() {
   const termine = await (await fetch('/api/admin/kurstermine')).json();
   const wrap = document.getElementById('termine-table');
   if (!termine.length) { wrap.innerHTML = '<div class="empty">Noch keine Termine angelegt</div>'; return; }
-  const canEdit   = _rolle === 'admin' || _rolle === 'mitarbeiter';
-  const canDelete = _rolle === 'admin';
+  const canEdit      = _rolle === 'admin' || _rolle === 'mitarbeiter';
+  const canStornieren = _rolle === 'admin' || _rolle === 'mitarbeiter';
+  const canDelete    = _rolle === 'admin';
   const rows = termine.map(t => `
-    <tr>
-      <td>${fmtDate(t.datum_von)} – ${fmtDate(t.datum_bis)}</td>
-      <td>${t.standort}</td>
+    <tr${!t.aktiv ? ' style="opacity:.5"' : ''}>
+      <td style="${!t.aktiv ? 'text-decoration:line-through' : ''}">${fmtDate(t.datum_von)} – ${fmtDate(t.datum_bis)}</td>
+      <td style="${!t.aktiv ? 'text-decoration:line-through' : ''}">${t.standort}</td>
       <td>${t.beschreibung || '—'}</td>
       <td>${t.preis || '—'}</td>
       <td>${t.gebuchte_plaetze} / ${t.max_plaetze}</td>
-      <td><span class="badge ${t.aktiv ? 'badge-aktiv' : 'badge-inaktiv'}">${t.aktiv ? 'Aktiv' : 'Inaktiv'}</span></td>
+      <td><span class="badge ${t.aktiv ? 'badge-aktiv' : 'badge-inaktiv'}">${t.aktiv ? 'Aktiv' : 'Storniert'}</span></td>
       <td class="td-actions">
-        ${canEdit   ? `<button class="btn btn-ghost btn-sm" onclick="editTermin(${t.id})">Bearbeiten</button>` : ''}
-        ${canEdit   ? `<button class="btn btn-ghost btn-sm" onclick="dupTermin(${t.id})">Duplizieren</button>` : ''}
-        ${canDelete ? `<button class="btn btn-danger btn-sm" onclick="deleteTermin(${t.id})">Löschen</button>` : ''}
-        ${!canEdit  ? '<span style="color:var(--muted);font-size:12px">Nur lesen</span>' : ''}
+        ${canEdit      ? `<button class="btn btn-ghost btn-sm" onclick="editTermin(${t.id})">Bearbeiten</button>` : ''}
+        ${canEdit      ? `<button class="btn btn-ghost btn-sm" onclick="dupTermin(${t.id})">Duplizieren</button>` : ''}
+        ${canStornieren && t.aktiv  ? `<button class="btn btn-danger btn-sm" onclick="storniereTermin(${t.id}, false)">Stornieren</button>` : ''}
+        ${canStornieren && !t.aktiv ? `<button class="btn btn-ghost btn-sm" onclick="storniereTermin(${t.id}, true)">Reaktivieren</button>` : ''}
+        ${canDelete    ? `<button class="btn btn-danger btn-sm" onclick="deleteTermin(${t.id})">Löschen</button>` : ''}
+        ${!canEdit     ? '<span style="color:var(--muted);font-size:12px">Nur lesen</span>' : ''}
       </td>
     </tr>`).join('');
   wrap.innerHTML = `<table><thead><tr><th>Datum</th><th>Standort</th><th>Beschreibung</th><th>Preis</th><th>Plätze</th><th>Status</th><th>Aktionen</th></tr></thead><tbody>${rows}</tbody></table>`;
@@ -645,6 +648,18 @@ async function deleteTermin(id) {
   const res = await fetch(`/api/admin/kurstermine/${id}`, { method: 'DELETE' });
   if (res.ok) { toast('Termin gelöscht'); loadTermine(); }
   else toast('Fehler beim Löschen', true);
+}
+
+async function storniereTermin(id, aktivieren) {
+  const label = aktivieren ? 'reaktivieren' : 'stornieren';
+  if (!confirm(`Termin wirklich ${label}?`)) return;
+  const res = await fetch(`/api/admin/kurstermine/${id}/stornieren`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ aktiv: aktivieren })
+  });
+  if (res.ok) { toast(aktivieren ? 'Termin reaktiviert ✓' : 'Termin storniert'); loadTermine(); }
+  else toast('Fehler', true);
 }
 
 async function dupTermin(id) {

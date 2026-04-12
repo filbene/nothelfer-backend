@@ -12,6 +12,11 @@ const { Resend }    = require('resend');
 const Database      = require('better-sqlite3');
 const path          = require('path');
 const fs            = require('fs');
+const helmet        = require('helmet');
+const rateLimit     = require('express-rate-limit');
+
+// .env für lokale Entwicklung laden (wird auf Railway ignoriert wenn nicht vorhanden)
+try { require('dotenv').config(); } catch(e) {}
 
 // ─── CONFIG ────────────────────────────────────────────────────────────────
 const config = require('./config.js');
@@ -113,16 +118,16 @@ function mailHtmlKunde(anmeldung, terminText) {
 <body><div class="wrap">
   <div class="header"><h1>Anmeldung bestätigt ✓</h1><p>Nothelfer Zentrum — Erste Hilfe Kurse Schweiz</p></div>
   <div class="body">
-    <p>Guten Tag <strong>${anmeldung.vorname} ${anmeldung.nachname}</strong>,</p>
+    <p>Guten Tag <strong>${escHtml(anmeldung.vorname)} ${escHtml(anmeldung.nachname)}</strong>,</p>
     <p>vielen Dank für Ihre Anmeldung beim Nothelfer Zentrum! Wir freuen uns, Sie bei uns begrüssen zu dürfen.</p>
     <div class="info-box">
       <h3>Ihre Buchungsdetails</h3>
-      <div class="info-row"><span class="label">Kurstermin</span><span class="value">${terminText}</span></div>
-      <div class="info-row"><span class="label">Anzahl Personen</span><span class="value">${anmeldung.anzahl_personen}</span></div>
-      <div class="info-row"><span class="label">Name</span><span class="value">${anmeldung.vorname} ${anmeldung.nachname}</span></div>
-      <div class="info-row"><span class="label">E-Mail</span><span class="value">${anmeldung.email}</span></div>
-      ${anmeldung.telefon ? `<div class="info-row"><span class="label">Telefon</span><span class="value">${anmeldung.telefon}</span></div>` : ''}
-      <div class="info-row"><span class="label">Adresse</span><span class="value">${anmeldung.strasse}, ${anmeldung.plz_ort}</span></div>
+      <div class="info-row"><span class="label">Kurstermin</span><span class="value">${escHtml(terminText)}</span></div>
+      <div class="info-row"><span class="label">Anzahl Personen</span><span class="value">${escHtml(anmeldung.anzahl_personen)}</span></div>
+      <div class="info-row"><span class="label">Name</span><span class="value">${escHtml(anmeldung.vorname)} ${escHtml(anmeldung.nachname)}</span></div>
+      <div class="info-row"><span class="label">E-Mail</span><span class="value">${escHtml(anmeldung.email)}</span></div>
+      ${anmeldung.telefon ? `<div class="info-row"><span class="label">Telefon</span><span class="value">${escHtml(anmeldung.telefon)}</span></div>` : ''}
+      <div class="info-row"><span class="label">Adresse</span><span class="value">${escHtml(anmeldung.strasse)}, ${escHtml(anmeldung.plz_ort)}</span></div>
     </div>
     <p>Bitte bringen Sie bequeme Kleidung und flache Schuhe mit. Das Kursmaterial wird von uns bereitgestellt.</p>
     <p>Bei Fragen erreichen Sie uns unter <a href="mailto:info@nothelferzentrum.ch" style="color:#C41E3A;">info@nothelferzentrum.ch</a> oder <a href="tel:+41789655132" style="color:#C41E3A;">+41 78 965 51 32</a>.</p>
@@ -152,13 +157,13 @@ function mailHtmlAdmin(anmeldung, terminText) {
   <div class="body">
     <p style="color:#3a352f">Eine neue Kursanmeldung wurde soeben übermittelt:</p>
     <div class="info-box">
-      <div class="info-row"><span class="label">Name</span><span class="value">${anmeldung.vorname} ${anmeldung.nachname}</span></div>
-      <div class="info-row"><span class="label">E-Mail</span><span class="value">${anmeldung.email}</span></div>
-      <div class="info-row"><span class="label">Telefon</span><span class="value">${anmeldung.telefon || '—'}</span></div>
-      <div class="info-row"><span class="label">Adresse</span><span class="value">${anmeldung.strasse}, ${anmeldung.plz_ort}</span></div>
-      <div class="info-row"><span class="label">Kurstermin</span><span class="value">${terminText}</span></div>
-      <div class="info-row"><span class="label">Personen</span><span class="value">${anmeldung.anzahl_personen}</span></div>
-      ${anmeldung.bemerkungen ? `<div class="info-row"><span class="label">Bemerkungen</span><span class="value">${anmeldung.bemerkungen}</span></div>` : ''}
+      <div class="info-row"><span class="label">Name</span><span class="value">${escHtml(anmeldung.vorname)} ${escHtml(anmeldung.nachname)}</span></div>
+      <div class="info-row"><span class="label">E-Mail</span><span class="value">${escHtml(anmeldung.email)}</span></div>
+      <div class="info-row"><span class="label">Telefon</span><span class="value">${escHtml(anmeldung.telefon || '—')}</span></div>
+      <div class="info-row"><span class="label">Adresse</span><span class="value">${escHtml(anmeldung.strasse)}, ${escHtml(anmeldung.plz_ort)}</span></div>
+      <div class="info-row"><span class="label">Kurstermin</span><span class="value">${escHtml(terminText)}</span></div>
+      <div class="info-row"><span class="label">Personen</span><span class="value">${escHtml(anmeldung.anzahl_personen)}</span></div>
+      ${anmeldung.bemerkungen ? `<div class="info-row"><span class="label">Bemerkungen</span><span class="value">${escHtml(anmeldung.bemerkungen)}</span></div>` : ''}
     </div>
   </div>
   <div class="footer">Nothelfer Zentrum Dashboard</div>
@@ -188,14 +193,45 @@ async function sendeBestaetigung(anmeldung, termin) {
 // ─── APP ───────────────────────────────────────────────────────────────────
 const app = express();
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Security Headers (Helmet)
+app.use(helmet({
+  contentSecurityPolicy: false, // CSP separat konfigurieren falls nötig
+}));
+
+// Body Parser (mit Grössenlimit gegen DoS)
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+// Session mit sicheren Cookie-Flags
 app.use(session({
   secret: config.sessionSecret,
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 8 * 60 * 60 * 1000 }, // 8h
+  cookie: {
+    maxAge:   8 * 60 * 60 * 1000, // 8h
+    httpOnly: true,                // Kein Zugriff per JavaScript
+    secure:   process.env.NODE_ENV === 'production', // Nur HTTPS in Produktion
+    sameSite: 'lax',               // CSRF-Schutz
+  },
 }));
+
+// Rate Limiter für Login-Endpoint (max. 10 Versuche pro 15 Min pro IP)
+const loginLimiter = rateLimit({
+  windowMs:         15 * 60 * 1000,
+  max:              10,
+  standardHeaders:  true,
+  legacyHeaders:    false,
+  message:          { error: 'Zu viele Login-Versuche. Bitte warten Sie 15 Minuten.' },
+});
+
+// Rate Limiter für Anmeldungs-Endpoint (max. 20 Anmeldungen pro Stunde pro IP)
+const anmeldungLimiter = rateLimit({
+  windowMs:         60 * 60 * 1000,
+  max:              20,
+  standardHeaders:  true,
+  legacyHeaders:    false,
+  message:          { error: 'Zu viele Anfragen. Bitte später versuchen.' },
+});
 
 // Dashboard-Bereich: Zugriff nur mit Login (ausser login.html)
 app.use('/dashboard', (req, res, next) => {
@@ -208,6 +244,17 @@ app.use('/dashboard', (req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── HILFSFUNKTIONEN ───────────────────────────────────────────────────────
+
+// HTML-Sonderzeichen escapen (verhindert XSS in E-Mails)
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function formatDate(str) {
   if (!str) return '';
   const d = new Date(str);
@@ -235,7 +282,7 @@ function logAktion(req, aktion, kategorie, details = '') {
 }
 
 // ─── AUTH ROUTEN ───────────────────────────────────────────────────────────
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', loginLimiter, (req, res) => {
   const { username, password } = req.body;
   const user = db.prepare('SELECT * FROM admin_users WHERE username = ?').get(username);
   if (!user || !bcrypt.compareSync(password, user.password)) {
@@ -310,6 +357,16 @@ app.put('/api/admin/kurstermine/:id', requireAuth, requireRole('admin', 'mitarbe
   res.json({ ok: true });
 });
 
+// Termin stornieren / reaktivieren
+app.patch('/api/admin/kurstermine/:id/stornieren', requireAuth, requireRole('admin', 'mitarbeiter'), (req, res) => {
+  const { aktiv } = req.body;
+  const t = db.prepare('SELECT * FROM kurstermine WHERE id = ?').get(req.params.id);
+  db.prepare('UPDATE kurstermine SET aktiv = ? WHERE id = ?').run(aktiv ? 1 : 0, req.params.id);
+  const label = aktiv ? 'Kurs reaktiviert' : 'Kurs storniert';
+  logAktion(req, label, 'kurs', t ? `${formatDate(t.datum_von)} – ${formatDate(t.datum_bis)}, ${t.standort}` : `ID ${req.params.id}`);
+  res.json({ ok: true });
+});
+
 // Termin löschen
 app.delete('/api/admin/kurstermine/:id', requireAuth, requireRole('admin'), (req, res) => {
   const t = db.prepare('SELECT * FROM kurstermine WHERE id = ?').get(req.params.id);
@@ -333,11 +390,33 @@ app.post('/api/admin/kurstermine/:id/duplizieren', requireAuth, requireRole('adm
 // ─── ANMELDUNGEN API ───────────────────────────────────────────────────────
 
 // Neue Anmeldung (public — vom Frontend-Formular)
-app.post('/api/anmeldungen', async (req, res) => {
+app.post('/api/anmeldungen', anmeldungLimiter, async (req, res) => {
   const { vorname, nachname, email, telefon, strasse, plz_ort, kurstermin_id, anzahl_personen, bemerkungen } = req.body;
 
+  // Pflichtfelder prüfen
   if (!vorname || !nachname || !email || !strasse || !plz_ort || !kurstermin_id) {
     return res.status(400).json({ error: 'Pflichtfelder fehlen' });
+  }
+
+  // Feldlängen prüfen (gegen überlange Eingaben)
+  if (
+    String(vorname).length > 100 || String(nachname).length > 100 ||
+    String(email).length > 200   || String(strasse).length > 200 ||
+    String(plz_ort).length > 100 || String(bemerkungen || '').length > 1000
+  ) {
+    return res.status(400).json({ error: 'Eingabe zu lang' });
+  }
+
+  // E-Mail-Format prüfen
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(String(email))) {
+    return res.status(400).json({ error: 'Ungültige E-Mail-Adresse' });
+  }
+
+  // Anzahl Personen validieren (1–10)
+  const gewuenscht = parseInt(anzahl_personen) || 1;
+  if (gewuenscht < 1 || gewuenscht > 10) {
+    return res.status(400).json({ error: 'Anzahl Personen muss zwischen 1 und 10 liegen' });
   }
 
   // Termin prüfen
@@ -346,7 +425,6 @@ app.post('/api/anmeldungen', async (req, res) => {
 
   // Plätze prüfen (Summe der Personen, ohne Stornierungen)
   const gebucht = db.prepare("SELECT COALESCE(SUM(anzahl_personen), 0) as c FROM anmeldungen WHERE kurstermin_id = ? AND status != 'storniert'").get(kurstermin_id).c;
-  const gewuenscht = parseInt(anzahl_personen) || 1;
   if (gebucht + gewuenscht > termin.max_plaetze) {
     const frei = termin.max_plaetze - gebucht;
     return res.status(400).json({ error: frei <= 0 ? 'Dieser Termin ist leider ausgebucht' : `Nur noch ${frei} Platz/Plätze frei` });
@@ -355,13 +433,13 @@ app.post('/api/anmeldungen', async (req, res) => {
   const result = db.prepare(`
     INSERT INTO anmeldungen (vorname, nachname, email, telefon, strasse, plz_ort, kurstermin_id, anzahl_personen, bemerkungen)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(vorname, nachname, email, telefon || '', strasse, plz_ort, kurstermin_id, anzahl_personen || 1, bemerkungen || '');
+  `).run(vorname, nachname, email, telefon || '', strasse, plz_ort, kurstermin_id, gewuenscht, bemerkungen || '');
 
   // Sofort antworten — E-Mail wird im Hintergrund gesendet
   res.json({ ok: true, id: result.lastInsertRowid });
 
   // Bestätigungs-E-Mail asynchron im Hintergrund
-  const anmeldung = { vorname, nachname, email, telefon, strasse, plz_ort, anzahl_personen, bemerkungen };
+  const anmeldung = { vorname, nachname, email, telefon, strasse, plz_ort, anzahl_personen: gewuenscht, bemerkungen };
   sendeBestaetigung(anmeldung, termin).catch(err => console.error('E-Mail Fehler:', err.message));
 });
 
