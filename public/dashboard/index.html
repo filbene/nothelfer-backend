@@ -17,10 +17,7 @@ a{color:inherit;text-decoration:none}
 
 /* HEADER */
 .header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.h-logo{display:flex;align-items:center;gap:12px}
-.h-logo-mark{width:36px;height:36px;background:linear-gradient(135deg,var(--crimson),var(--crimson-d));border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px}
-.h-logo-text{font-size:17px;font-weight:600}
-.h-logo-text span{color:var(--crimson)}
+.h-logo{display:flex;align-items:center}
 .h-nav{display:flex;gap:4px}
 .h-nav button{background:none;border:none;color:var(--muted);font-family:inherit;font-size:14px;font-weight:500;padding:8px 16px;border-radius:8px;cursor:pointer;transition:all .2s}
 .h-nav button:hover,.h-nav button.active{background:rgba(255,255,255,0.06);color:var(--text)}
@@ -112,6 +109,14 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
 .settings-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:32px;max-width:480px}
 .settings-card h3{font-size:18px;font-weight:600;margin-bottom:24px}
 
+/* DASHBOARD FOOTER */
+.dash-footer{background:var(--surface);border-top:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.dash-footer-left{display:flex;align-items:center;gap:10px}
+.dash-footer-right{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.dash-footer a{color:var(--crimson);text-decoration:none}
+.dash-footer a:hover{text-decoration:underline}
+.dash-footer-sep{color:rgba(255,255,255,0.2);margin:0 2px}
+
 /* LOG KATEGORIE BADGES */
 .badge-auth{background:rgba(139,92,246,0.15);color:#a78bfa;border:1px solid rgba(139,92,246,0.3)}
 .badge-kurs{background:rgba(14,165,233,0.15);color:#38bdf8;border:1px solid rgba(14,165,233,0.3)}
@@ -125,8 +130,7 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
 <!-- HEADER -->
 <header class="header">
   <div class="h-logo">
-    <div class="h-logo-mark">N</div>
-    <div class="h-logo-text">Nothelfer<span>Zentrum</span></div>
+    <img src="/images/logo.png" alt="Nothelfer Zentrum" style="height:40px;width:auto;object-fit:contain">
   </div>
   <nav class="h-nav">
     <button class="active" onclick="showPage('overview')">Übersicht</button>
@@ -349,6 +353,25 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
 
 <!-- TOAST -->
 <div id="toast"></div>
+
+<!-- FOOTER -->
+<footer class="dash-footer">
+  <div class="dash-footer-left">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--crimson)"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 015.19 12 19.79 19.79 0 012.12 3.38 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+    <div>
+      <strong style="color:var(--text)">Probleme mit dem Dashboard?</strong> Kontaktiere uns jetzt!
+      <span class="dash-footer-sep">·</span>
+      <a href="mailto:info@nb-films.ch">info@nb-films.ch</a>
+      <span class="dash-footer-sep">·</span>
+      <a href="tel:+41767407846">+41 76 740 78 46</a>
+    </div>
+  </div>
+  <div class="dash-footer-right">
+    © 2026 Nothelfer Zentrum
+    <span class="dash-footer-sep">·</span>
+    Entwickelt von <a href="https://www.nb-films.ch" target="_blank" rel="noopener">NB-Films</a>
+  </div>
+</footer>
 
 <script>
 // ──────────────────────────────────────────────────────────────────────────
