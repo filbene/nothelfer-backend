@@ -58,6 +58,19 @@ db.exec(`
 try { db.exec("ALTER TABLE kurstermine ADD COLUMN preis TEXT DEFAULT ''"); } catch(e) {}
 try { db.exec("ALTER TABLE admin_users ADD COLUMN rolle TEXT DEFAULT 'mitarbeiter'"); } catch(e) {}
 
+// Activity Log Tabelle
+db.exec(`
+  CREATE TABLE IF NOT EXISTS activity_logs (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    benutzer_id INTEGER,
+    benutzer    TEXT NOT NULL,
+    aktion      TEXT NOT NULL,
+    kategorie   TEXT DEFAULT 'system',
+    details     TEXT DEFAULT '',
+    erstellt_am TEXT DEFAULT (datetime('now'))
+  );
+`);
+
 // Standard-Admin anlegen falls nicht vorhanden
 const adminExists = db.prepare('SELECT id FROM admin_users WHERE username = ?').get(config.admin.username);
 if (!adminExists) {
@@ -214,6 +227,13 @@ function requireRole(...roles) {
   };
 }
 
+function logAktion(req, aktion, kategorie, details = '') {
+  try {
+    db.prepare('INSERT INTO activity_logs (benutzer_id, benutzer, aktion, kategorie, details) VALUES (?, ?, ?, ?, ?)')
+      .run(req.session.adminId || null, req.session.adminName || 'System', aktion, kategorie, details);
+  } catch(e) { /* ignorieren */ }
+}
+
 // ─── AUTH ROUTEN ───────────────────────────────────────────────────────────
 app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body;
@@ -224,6 +244,9 @@ app.post('/api/auth/login', (req, res) => {
   req.session.adminId = user.id;
   req.session.adminName = user.username;
   req.session.adminRolle = user.rolle || 'gast';
+  // Log nach Session-Setup
+  db.prepare('INSERT INTO activity_logs (benutzer_id, benutzer, aktion, kategorie, details) VALUES (?, ?, ?, ?, ?)')
+    .run(user.id, user.username, 'Eingeloggt', 'auth', `Rolle: ${user.rolle || 'gast'}`);
   res.json({ ok: true });
 });
 
@@ -272,6 +295,7 @@ app.post('/api/admin/kurstermine', requireAuth, requireRole('admin', 'mitarbeite
     INSERT INTO kurstermine (datum_von, datum_bis, standort, beschreibung, max_plaetze, preis)
     VALUES (?, ?, ?, ?, ?, ?)
   `).run(datum_von, datum_bis, standort, beschreibung || '', max_plaetze || 20, preis || '');
+  logAktion(req, 'Kurs erstellt', 'kurs', `${formatDate(datum_von)} – ${formatDate(datum_bis)}, ${standort}${preis ? ' · ' + preis : ''}`);
   res.json({ ok: true, id: result.lastInsertRowid });
 });
 
@@ -282,12 +306,15 @@ app.put('/api/admin/kurstermine/:id', requireAuth, requireRole('admin', 'mitarbe
     UPDATE kurstermine SET datum_von=?, datum_bis=?, standort=?, beschreibung=?, max_plaetze=?, aktiv=?, preis=?
     WHERE id=?
   `).run(datum_von, datum_bis, standort, beschreibung || '', max_plaetze || 20, aktiv ? 1 : 0, preis || '', req.params.id);
+  logAktion(req, 'Kurs bearbeitet', 'kurs', `${formatDate(datum_von)} – ${formatDate(datum_bis)}, ${standort} · Status: ${aktiv ? 'Aktiv' : 'Inaktiv'}`);
   res.json({ ok: true });
 });
 
 // Termin löschen
 app.delete('/api/admin/kurstermine/:id', requireAuth, requireRole('admin'), (req, res) => {
+  const t = db.prepare('SELECT * FROM kurstermine WHERE id = ?').get(req.params.id);
   db.prepare('DELETE FROM kurstermine WHERE id = ?').run(req.params.id);
+  logAktion(req, 'Kurs gelöscht', 'kurs', t ? `${formatDate(t.datum_von)} – ${formatDate(t.datum_bis)}, ${t.standort}` : `ID ${req.params.id}`);
   res.json({ ok: true });
 });
 
@@ -299,6 +326,7 @@ app.post('/api/admin/kurstermine/:id/duplizieren', requireAuth, requireRole('adm
     INSERT INTO kurstermine (datum_von, datum_bis, standort, beschreibung, max_plaetze, aktiv)
     VALUES (?, ?, ?, ?, ?, 1)
   `).run(original.datum_von, original.datum_bis, original.standort, original.beschreibung, original.max_plaetze);
+  logAktion(req, 'Kurs dupliziert', 'kurs', `${formatDate(original.datum_von)} – ${formatDate(original.datum_bis)}, ${original.standort}`);
   res.json({ ok: true, id: result.lastInsertRowid });
 });
 
@@ -358,13 +386,22 @@ app.put('/api/admin/anmeldungen/:id/status', requireAuth, requireRole('admin', '
   const { status } = req.body;
   const allowed = ['neu', 'bestaetigt', 'storniert'];
   if (!allowed.includes(status)) return res.status(400).json({ error: 'Ungültiger Status' });
+  const anm = db.prepare('SELECT a.*, k.datum_von, k.datum_bis, k.standort FROM anmeldungen a LEFT JOIN kurstermine k ON k.id = a.kurstermin_id WHERE a.id = ?').get(req.params.id);
   db.prepare('UPDATE anmeldungen SET status = ? WHERE id = ?').run(status, req.params.id);
+  const statusLabel = { neu: 'Neu', bestaetigt: 'Bestätigt', storniert: 'Storniert' }[status] || status;
+  const name = anm ? `${anm.vorname} ${anm.nachname}` : `ID ${req.params.id}`;
+  const termin = anm ? `${formatDate(anm.datum_von)}, ${anm.standort}` : '';
+  logAktion(req, `Anmeldung ${statusLabel}`, 'anmeldung', `${name} · ${termin}`);
   res.json({ ok: true });
 });
 
 // Anmeldung löschen
 app.delete('/api/admin/anmeldungen/:id', requireAuth, requireRole('admin'), (req, res) => {
+  const anm = db.prepare('SELECT a.*, k.datum_von, k.standort FROM anmeldungen a LEFT JOIN kurstermine k ON k.id = a.kurstermin_id WHERE a.id = ?').get(req.params.id);
   db.prepare('DELETE FROM anmeldungen WHERE id = ?').run(req.params.id);
+  const name = anm ? `${anm.vorname} ${anm.nachname}` : `ID ${req.params.id}`;
+  const termin = anm ? `${formatDate(anm.datum_von)}, ${anm.standort}` : '';
+  logAktion(req, 'Anmeldung gelöscht', 'anmeldung', `${name} · ${termin}`);
   res.json({ ok: true });
 });
 
@@ -386,7 +423,21 @@ app.post('/api/admin/passwort', requireAuth, (req, res) => {
   }
   const hash = bcrypt.hashSync(neues_passwort, 10);
   db.prepare('UPDATE admin_users SET password = ? WHERE id = ?').run(hash, req.session.adminId);
+  logAktion(req, 'Eigenes Passwort geändert', 'benutzer', '');
   res.json({ ok: true });
+});
+
+// ─── LOGS API ──────────────────────────────────────────────────────────────
+
+app.get('/api/admin/logs', requireAuth, requireRole('admin'), (req, res) => {
+  const { kategorie, benutzer, limit: lim } = req.query;
+  let sql = 'SELECT * FROM activity_logs WHERE 1=1';
+  const params = [];
+  if (kategorie) { sql += ' AND kategorie = ?'; params.push(kategorie); }
+  if (benutzer)  { sql += ' AND benutzer = ?';  params.push(benutzer); }
+  sql += ' ORDER BY erstellt_am DESC LIMIT ?';
+  params.push(parseInt(lim) || 200);
+  res.json(db.prepare(sql).all(...params));
 });
 
 // ─── BENUTZERVERWALTUNG API ────────────────────────────────────────────────
@@ -403,6 +454,7 @@ app.post('/api/admin/users', requireAuth, requireRole('admin'), (req, res) => {
   try {
     const hash = bcrypt.hashSync(password, 10);
     const result = db.prepare('INSERT INTO admin_users (username, password, rolle) VALUES (?, ?, ?)').run(username, hash, rolle);
+    logAktion(req, 'Benutzer erstellt', 'benutzer', `${username} (${rolle})`);
     res.json({ ok: true, id: result.lastInsertRowid });
   } catch(e) {
     res.status(400).json({ error: 'Benutzername bereits vergeben' });
@@ -417,8 +469,10 @@ app.put('/api/admin/users/:id', requireAuth, requireRole('admin'), (req, res) =>
     if (password && password.length >= 6) {
       const hash = bcrypt.hashSync(password, 10);
       db.prepare('UPDATE admin_users SET username=?, password=?, rolle=? WHERE id=?').run(username, hash, rolle, req.params.id);
+      logAktion(req, 'Benutzer bearbeitet', 'benutzer', `${username} (${rolle}) · Passwort geändert`);
     } else {
       db.prepare('UPDATE admin_users SET username=?, rolle=? WHERE id=?').run(username, rolle, req.params.id);
+      logAktion(req, 'Benutzer bearbeitet', 'benutzer', `${username} (${rolle})`);
     }
     res.json({ ok: true });
   } catch(e) {
@@ -430,7 +484,9 @@ app.delete('/api/admin/users/:id', requireAuth, requireRole('admin'), (req, res)
   if (parseInt(req.params.id) === req.session.adminId) {
     return res.status(400).json({ error: 'Sie können sich nicht selbst löschen' });
   }
+  const u = db.prepare('SELECT username, rolle FROM admin_users WHERE id = ?').get(req.params.id);
   db.prepare('DELETE FROM admin_users WHERE id = ?').run(req.params.id);
+  logAktion(req, 'Benutzer gelöscht', 'benutzer', u ? `${u.username} (${u.rolle})` : `ID ${req.params.id}`);
   res.json({ ok: true });
 });
 

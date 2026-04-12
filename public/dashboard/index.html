@@ -111,6 +111,13 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
 /* SETTINGS */
 .settings-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:32px;max-width:480px}
 .settings-card h3{font-size:18px;font-weight:600;margin-bottom:24px}
+
+/* LOG KATEGORIE BADGES */
+.badge-auth{background:rgba(139,92,246,0.15);color:#a78bfa;border:1px solid rgba(139,92,246,0.3)}
+.badge-kurs{background:rgba(14,165,233,0.15);color:#38bdf8;border:1px solid rgba(14,165,233,0.3)}
+.badge-anmeldung{background:rgba(34,197,94,0.12);color:#22c55e;border:1px solid rgba(34,197,94,0.2)}
+.badge-benutzer{background:rgba(249,115,22,0.15);color:#f97316;border:1px solid rgba(249,115,22,0.2)}
+.log-details{font-size:12px;color:var(--muted);margin-top:2px}
 </style>
 </head>
 <body>
@@ -126,6 +133,7 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
     <button onclick="showPage('termine')">Kurstermine</button>
     <button onclick="showPage('anmeldungen')">Anmeldungen</button>
     <button id="nav-benutzer" onclick="showPage('benutzer')" style="display:none">Benutzer</button>
+    <button id="nav-logs" onclick="showPage('logs')" style="display:none">Logs</button>
     <button onclick="showPage('einstellungen')">Einstellungen</button>
   </nav>
   <div class="h-right">
@@ -197,6 +205,35 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
   </div>
   <div class="table-wrap" id="benutzer-table">
     <div class="empty">Keine Benutzer geladen</div>
+  </div>
+</div>
+
+<!-- ─── LOGS ──────────────────────────────────────────────────────────── -->
+<div class="page" id="page-logs">
+  <div class="section-header">
+    <h2>Aktivitätsprotokoll</h2>
+    <button class="btn btn-ghost btn-sm" onclick="loadLogs()">Aktualisieren</button>
+  </div>
+  <div class="filter-bar">
+    <select id="log-kategorie" onchange="loadLogs()">
+      <option value="">Alle Kategorien</option>
+      <option value="auth">Login</option>
+      <option value="kurs">Kurse</option>
+      <option value="anmeldung">Anmeldungen</option>
+      <option value="benutzer">Benutzer</option>
+    </select>
+    <select id="log-benutzer" onchange="loadLogs()">
+      <option value="">Alle Benutzer</option>
+    </select>
+    <select id="log-limit" onchange="loadLogs()">
+      <option value="50">Letzte 50</option>
+      <option value="100">Letzte 100</option>
+      <option value="200" selected>Letzte 200</option>
+      <option value="500">Letzte 500</option>
+    </select>
+  </div>
+  <div class="table-wrap" id="logs-table">
+    <div class="empty">Logs werden geladen…</div>
   </div>
 </div>
 
@@ -367,6 +404,7 @@ function showPage(name) {
   if (name === 'termine')     loadTermine();
   if (name === 'anmeldungen') { loadTermineFilter(); loadAnmeldungen(); }
   if (name === 'benutzer')    loadBenutzer();
+  if (name === 'logs')        loadLogs();
 }
 
 // ──────────────────────────────────────────────────────────────────────────
@@ -386,9 +424,8 @@ async function checkAuth() {
 function applyRoleUI() {
   const isAdmin       = _rolle === 'admin';
   const isMitarbeiter = _rolle === 'admin' || _rolle === 'mitarbeiter';
-  // Benutzer-Nav nur für Admin
-  document.getElementById('nav-benutzer').style.display = isAdmin ? '' : 'none';
-  // "Neuer Termin" nur für Admin/Mitarbeiter
+  document.getElementById('nav-benutzer').style.display    = isAdmin ? '' : 'none';
+  document.getElementById('nav-logs').style.display        = isAdmin ? '' : 'none';
   document.getElementById('btn-neuer-termin').style.display = isMitarbeiter ? '' : 'none';
 }
 
@@ -663,6 +700,57 @@ async function deleteUser(id) {
     const err = await res.json();
     toast(err.error || 'Fehler', true);
   }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+//  LOGS
+// ──────────────────────────────────────────────────────────────────────────
+let _logBenutzerList = [];
+
+async function loadLogs() {
+  const kategorie = document.getElementById('log-kategorie').value;
+  const benutzer  = document.getElementById('log-benutzer').value;
+  const limit     = document.getElementById('log-limit').value;
+  let url = `/api/admin/logs?limit=${limit}`;
+  if (kategorie) url += `&kategorie=${kategorie}`;
+  if (benutzer)  url += `&benutzer=${encodeURIComponent(benutzer)}`;
+
+  const logs = await (await fetch(url)).json();
+  const wrap = document.getElementById('logs-table');
+
+  // Benutzer-Filter befüllen (einmalig)
+  if (!_logBenutzerList.length) {
+    const alle = await (await fetch('/api/admin/logs?limit=500')).json();
+    const namen = [...new Set(alle.map(l => l.benutzer))].sort();
+    _logBenutzerList = namen;
+    const sel = document.getElementById('log-benutzer');
+    namen.forEach(n => {
+      const o = document.createElement('option');
+      o.value = n; o.textContent = n;
+      sel.appendChild(o);
+    });
+    if (benutzer) sel.value = benutzer;
+  }
+
+  if (!logs.length) { wrap.innerHTML = '<div class="empty">Keine Einträge gefunden</div>'; return; }
+
+  const katBadge = (k) => {
+    const map   = { auth: 'badge-auth', kurs: 'badge-kurs', anmeldung: 'badge-anmeldung', benutzer: 'badge-benutzer' };
+    const label = { auth: 'Login', kurs: 'Kurs', anmeldung: 'Anmeldung', benutzer: 'Benutzer' };
+    return `<span class="badge ${map[k] || 'badge-gast'}">${label[k] || k}</span>`;
+  };
+
+  const rows = logs.map(l => `
+    <tr>
+      <td style="white-space:nowrap;font-size:12px;color:var(--muted)">${fmtDT(l.erstellt_am)}</td>
+      <td><strong>${l.benutzer}</strong></td>
+      <td>${katBadge(l.kategorie)}</td>
+      <td>
+        <div>${l.aktion}</div>
+        ${l.details ? `<div class="log-details">${l.details}</div>` : ''}
+      </td>
+    </tr>`).join('');
+  wrap.innerHTML = `<table><thead><tr><th>Zeitpunkt</th><th>Benutzer</th><th>Kategorie</th><th>Aktion</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 // ──────────────────────────────────────────────────────────────────────────
