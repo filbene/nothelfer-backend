@@ -8,11 +8,10 @@
 const express       = require('express');
 const session       = require('express-session');
 const bcrypt        = require('bcryptjs');
-const nodemailer    = require('nodemailer');
+const { Resend }    = require('resend');
 const Database      = require('better-sqlite3');
 const path          = require('path');
 const fs            = require('fs');
-const dns           = require('dns');
 
 // ─── CONFIG ────────────────────────────────────────────────────────────────
 const config = require('./config.js');
@@ -66,34 +65,20 @@ if (!adminExists) {
   console.log(`✓ Admin-Account erstellt: ${config.admin.username}`);
 }
 
-// ─── MAILER ────────────────────────────────────────────────────────────────
-const transporter = nodemailer.createTransport({
-  host:   config.smtp.host,
-  port:   config.smtp.port,
-  secure: config.smtp.secure,
-  auth: {
-    user: config.smtp.user,
-    pass: config.smtp.pass,
-  },
-  dnsLookup: (hostname, options, callback) => {
-    dns.resolve4(hostname, (err, addresses) => {
-      if (err) return callback(err);
-      callback(null, addresses[0], 4);
-    });
-  },
-});
+// ─── MAILER (Resend) ───────────────────────────────────────────────────────
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-async function sendeBestaetigung(anmeldung, termin) {
-  const terminText = `${formatDate(termin.datum_von)} – ${formatDate(termin.datum_bis)}, ${termin.standort}`;
-  await transporter.sendMail({
-    from:    `"${config.smtp.absenderName}" <${config.smtp.user}>`,
-    to:      anmeldung.email,
-    subject: 'Ihre Kursanmeldung – Nothelfer Zentrum ✓',
-    html: `
-<!DOCTYPE html>
-<html lang="de">
-<head><meta charset="UTF-8"><style>
-  body { font-family: 'Outfit', Arial, sans-serif; background:#f8f6f3; margin:0; padding:0; }
+const BENACHRICHTIGUNGS_EMPFAENGER = [
+  'metinalimi4@gmail.com',
+  'sakiri.aldin@gmail.com',
+  'info@nothelferzentrum.ch',
+  'info@nb-films.ch',
+];
+
+function mailHtmlKunde(anmeldung, terminText) {
+  return `<!DOCTYPE html>
+<html lang="de"><head><meta charset="UTF-8"><style>
+  body { font-family: Arial, sans-serif; background:#f8f6f3; margin:0; padding:0; }
   .wrap { max-width:580px; margin:40px auto; background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.08); }
   .header { background:linear-gradient(135deg,#C41E3A,#A01830); padding:36px 40px; text-align:center; }
   .header h1 { color:#fff; margin:0; font-size:26px; font-weight:700; }
@@ -109,12 +94,8 @@ async function sendeBestaetigung(anmeldung, termin) {
   .footer { background:#f1ede8; padding:24px 40px; text-align:center; font-size:12px; color:#9b9488; }
   .footer a { color:#C41E3A; }
 </style></head>
-<body>
-<div class="wrap">
-  <div class="header">
-    <h1>Anmeldung bestätigt ✓</h1>
-    <p>Nothelfer Zentrum — Erste Hilfe Kurse Schweiz</p>
-  </div>
+<body><div class="wrap">
+  <div class="header"><h1>Anmeldung bestätigt ✓</h1><p>Nothelfer Zentrum — Erste Hilfe Kurse Schweiz</p></div>
   <div class="body">
     <p>Guten Tag <strong>${anmeldung.vorname} ${anmeldung.nachname}</strong>,</p>
     <p>vielen Dank für Ihre Anmeldung beim Nothelfer Zentrum! Wir freuen uns, Sie bei uns begrüssen zu dürfen.</p>
@@ -128,16 +109,63 @@ async function sendeBestaetigung(anmeldung, termin) {
       <div class="info-row"><span class="label">Adresse</span><span class="value">${anmeldung.strasse}, ${anmeldung.plz_ort}</span></div>
     </div>
     <p>Bitte bringen Sie bequeme Kleidung und flache Schuhe mit. Das Kursmaterial wird von uns bereitgestellt.</p>
-    <p>Bei Fragen erreichen Sie uns unter <a href="mailto:${config.smtp.user}" style="color:#C41E3A;">${config.smtp.user}</a> oder <a href="tel:+41789655132" style="color:#C41E3A;">+41 78 965 51 32</a>.</p>
+    <p>Bei Fragen erreichen Sie uns unter <a href="mailto:info@nothelferzentrum.ch" style="color:#C41E3A;">info@nothelferzentrum.ch</a> oder <a href="tel:+41789655132" style="color:#C41E3A;">+41 78 965 51 32</a>.</p>
     <p>Wir freuen uns auf Sie!<br><strong>Das Team vom Nothelfer Zentrum</strong></p>
   </div>
-  <div class="footer">
-    Nothelfer Zentrum · Sirnacherstrasse 7, 9500 Wil SG<br>
-    <a href="https://nothelferzentrum.ch">nothelferzentrum.ch</a>
+  <div class="footer">Nothelfer Zentrum · Sirnacherstrasse 7, 9500 Wil SG<br><a href="https://nothelferzentrum.ch">nothelferzentrum.ch</a></div>
+</div></body></html>`;
+}
+
+function mailHtmlAdmin(anmeldung, terminText) {
+  return `<!DOCTYPE html>
+<html lang="de"><head><meta charset="UTF-8"><style>
+  body { font-family: Arial, sans-serif; background:#f8f6f3; margin:0; padding:0; }
+  .wrap { max-width:580px; margin:40px auto; background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.08); }
+  .header { background:linear-gradient(135deg,#1D1A16,#3A352F); padding:28px 40px; text-align:center; }
+  .header h1 { color:#fff; margin:0; font-size:22px; font-weight:700; }
+  .body { padding:32px 40px; }
+  .info-box { background:#f8f6f3; border-left:4px solid #C41E3A; border-radius:8px; padding:20px 24px; margin:16px 0; }
+  .info-row { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #e8e3dc; font-size:14px; }
+  .info-row:last-child { border-bottom:none; }
+  .info-row .label { color:#9b9488; }
+  .info-row .value { font-weight:600; color:#1d1a16; }
+  .footer { background:#f1ede8; padding:16px 40px; text-align:center; font-size:12px; color:#9b9488; }
+</style></head>
+<body><div class="wrap">
+  <div class="header"><h1>Neue Anmeldung eingegangen</h1></div>
+  <div class="body">
+    <p style="color:#3a352f">Eine neue Kursanmeldung wurde soeben übermittelt:</p>
+    <div class="info-box">
+      <div class="info-row"><span class="label">Name</span><span class="value">${anmeldung.vorname} ${anmeldung.nachname}</span></div>
+      <div class="info-row"><span class="label">E-Mail</span><span class="value">${anmeldung.email}</span></div>
+      <div class="info-row"><span class="label">Telefon</span><span class="value">${anmeldung.telefon || '—'}</span></div>
+      <div class="info-row"><span class="label">Adresse</span><span class="value">${anmeldung.strasse}, ${anmeldung.plz_ort}</span></div>
+      <div class="info-row"><span class="label">Kurstermin</span><span class="value">${terminText}</span></div>
+      <div class="info-row"><span class="label">Personen</span><span class="value">${anmeldung.anzahl_personen}</span></div>
+      ${anmeldung.bemerkungen ? `<div class="info-row"><span class="label">Bemerkungen</span><span class="value">${anmeldung.bemerkungen}</span></div>` : ''}
+    </div>
   </div>
-</div>
-</body></html>
-    `,
+  <div class="footer">Nothelfer Zentrum Dashboard</div>
+</div></body></html>`;
+}
+
+async function sendeBestaetigung(anmeldung, termin) {
+  const terminText = `${formatDate(termin.datum_von)} – ${formatDate(termin.datum_bis)}, ${termin.standort}`;
+
+  // Bestätigung an Kunde
+  await resend.emails.send({
+    from:    'Nothelfer Zentrum <onboarding@resend.dev>',
+    to:      anmeldung.email,
+    subject: 'Ihre Kursanmeldung – Nothelfer Zentrum ✓',
+    html:    mailHtmlKunde(anmeldung, terminText),
+  });
+
+  // Info an Betreiber
+  await resend.emails.send({
+    from:    'Nothelfer Zentrum <onboarding@resend.dev>',
+    to:      BENACHRICHTIGUNGS_EMPFAENGER,
+    subject: `Neue Anmeldung: ${anmeldung.vorname} ${anmeldung.nachname} — ${terminText}`,
+    html:    mailHtmlAdmin(anmeldung, terminText),
   });
 }
 
