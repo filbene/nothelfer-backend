@@ -72,7 +72,6 @@ const BENACHRICHTIGUNGS_EMPFAENGER = [
   'metinalimi4@gmail.com',
   'sakiri.aldin@gmail.com',
   'info@nothelferzentrum.ch',
-  'info@nb-films.ch',
 ];
 
 function mailHtmlKunde(anmeldung, terminText) {
