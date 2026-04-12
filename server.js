@@ -200,6 +200,9 @@ async function sendeBestaetigung(anmeldung, termin) {
 // ─── APP ───────────────────────────────────────────────────────────────────
 const app = express();
 
+// Railway / Reverse-Proxy: X-Forwarded-Proto vertrauen (wichtig für secure Cookies)
+app.set('trust proxy', 1);
+
 // Security Headers (Helmet)
 app.use(helmet({
   contentSecurityPolicy: false, // CSP separat konfigurieren falls nötig
