@@ -285,16 +285,12 @@ app.post('/api/anmeldungen', async (req, res) => {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(vorname, nachname, email, telefon || '', strasse, plz_ort, kurstermin_id, anzahl_personen || 1, bemerkungen || '');
 
-  // Bestätigungs-E-Mail senden
-  try {
-    const anmeldung = { vorname, nachname, email, telefon, strasse, plz_ort, anzahl_personen, bemerkungen };
-    await sendeBestaetigung(anmeldung, termin);
-  } catch (err) {
-    console.error('E-Mail Fehler:', err.message);
-    // Anmeldung trotzdem OK, E-Mail-Fehler nicht zum User leiten
-  }
-
+  // Sofort antworten — E-Mail wird im Hintergrund gesendet
   res.json({ ok: true, id: result.lastInsertRowid });
+
+  // Bestätigungs-E-Mail asynchron im Hintergrund
+  const anmeldung = { vorname, nachname, email, telefon, strasse, plz_ort, anzahl_personen, bemerkungen };
+  sendeBestaetigung(anmeldung, termin).catch(err => console.error('E-Mail Fehler:', err.message));
 });
 
 // Alle Anmeldungen (admin)
