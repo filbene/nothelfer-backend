@@ -26,7 +26,7 @@ a{color:inherit;text-decoration:none}
 .h-nav button:hover,.h-nav button.active{background:rgba(255,255,255,0.06);color:var(--text)}
 .h-nav button.active{color:#fff}
 .h-right{display:flex;align-items:center;gap:12px}
-.h-user{font-size:13px;color:var(--muted)}
+.h-user{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
 .btn-logout{background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);font-family:inherit;font-size:13px;padding:6px 14px;border-radius:8px;cursor:pointer;transition:all .2s}
 .btn-logout:hover{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:#ef4444}
 
@@ -74,6 +74,9 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 .badge-storniert{background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2)}
 .badge-aktiv{background:rgba(34,197,94,0.12);color:#22c55e;border:1px solid rgba(34,197,94,0.2)}
 .badge-inaktiv{background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2)}
+.badge-admin{background:rgba(196,30,58,0.15);color:#e05c78;border:1px solid rgba(196,30,58,0.3)}
+.badge-mitarbeiter{background:rgba(99,102,241,0.15);color:#818cf8;border:1px solid rgba(99,102,241,0.3)}
+.badge-gast{background:rgba(255,255,255,0.06);color:var(--muted);border:1px solid var(--border)}
 
 /* MODAL */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
@@ -88,6 +91,7 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
 .inp:focus{border-color:var(--crimson)}
 .inp option{background:#1a1a1f;color:#e8e3dc}
 .modal-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:24px}
+.field-hint{font-size:11px;color:var(--muted);margin-top:4px}
 
 /* FILTER BAR */
 .filter-bar{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
@@ -121,10 +125,11 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
     <button class="active" onclick="showPage('overview')">Übersicht</button>
     <button onclick="showPage('termine')">Kurstermine</button>
     <button onclick="showPage('anmeldungen')">Anmeldungen</button>
+    <button id="nav-benutzer" onclick="showPage('benutzer')" style="display:none">Benutzer</button>
     <button onclick="showPage('einstellungen')">Einstellungen</button>
   </nav>
   <div class="h-right">
-    <span class="h-user" id="h-user">admin</span>
+    <span class="h-user"><span id="h-rolle-badge"></span><span id="h-user">—</span></span>
     <button class="btn-logout" onclick="logout()">Abmelden</button>
   </div>
 </header>
@@ -152,7 +157,7 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
 <div class="page" id="page-termine">
   <div class="section-header">
     <h2>Kurstermine verwalten</h2>
-    <button class="btn btn-primary" onclick="openTerminModal()">+ Neuer Termin</button>
+    <button class="btn btn-primary" id="btn-neuer-termin" onclick="openTerminModal()">+ Neuer Termin</button>
   </div>
   <div class="table-wrap" id="termine-table">
     <div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Keine Termine vorhanden</div>
@@ -176,6 +181,23 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
     </select>
   </div>
   <div class="table-wrap" id="anmeldungen-table"></div>
+</div>
+
+<!-- ─── BENUTZER ─────────────────────────────────────────────────────── -->
+<div class="page" id="page-benutzer">
+  <div class="section-header">
+    <h2>Benutzerverwaltung</h2>
+    <button class="btn btn-primary" onclick="openUserModal()">+ Neuer Benutzer</button>
+  </div>
+  <div style="margin-bottom:20px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:12px;padding:16px 20px;font-size:13px;color:var(--muted)">
+    <strong style="color:var(--text)">Rollen-Übersicht:</strong>
+    &nbsp;<span class="badge badge-admin">Admin</span> Vollzugriff &nbsp;·&nbsp;
+    <span class="badge badge-mitarbeiter">Mitarbeiter</span> Kurse & Anmeldungen verwalten &nbsp;·&nbsp;
+    <span class="badge badge-gast">Gast</span> Nur lesen
+  </div>
+  <div class="table-wrap" id="benutzer-table">
+    <div class="empty">Keine Benutzer geladen</div>
+  </div>
 </div>
 
 <!-- ─── EINSTELLUNGEN ────────────────────────────────────────────────── -->
@@ -259,10 +281,44 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
   </div>
 </div>
 
+<!-- ─── MODAL BENUTZER ───────────────────────────────────────────────────── -->
+<div class="modal-bg" id="userModal">
+  <div class="modal">
+    <h3 id="userModal-title">Neuer Benutzer</h3>
+    <input type="hidden" id="u-id">
+    <div class="form-group">
+      <label class="fl">Benutzername *</label>
+      <input type="text" id="u-username" class="inp" placeholder="benutzername" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label class="fl">Passwort</label>
+      <input type="password" id="u-password" class="inp" placeholder="••••••••" autocomplete="new-password">
+      <div class="field-hint" id="u-pw-hint"></div>
+    </div>
+    <div class="form-group">
+      <label class="fl">Rolle *</label>
+      <select id="u-rolle" class="inp">
+        <option value="admin">Admin — Vollzugriff</option>
+        <option value="mitarbeiter" selected>Mitarbeiter — Kurse & Anmeldungen</option>
+        <option value="gast">Gast — Nur lesen</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeUserModal()">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveUser()">Speichern</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div id="toast"></div>
 
 <script>
+// ──────────────────────────────────────────────────────────────────────────
+//  STATE
+// ──────────────────────────────────────────────────────────────────────────
+let _rolle = 'gast';
+
 // ──────────────────────────────────────────────────────────────────────────
 //  UTILS
 // ──────────────────────────────────────────────────────────────────────────
@@ -292,18 +348,25 @@ function statusBadge(s) {
   return `<span class="badge ${map[s] || ''}">${label[s] || s}</span>`;
 }
 
+function rolleBadge(r) {
+  const map = { admin: 'badge-admin', mitarbeiter: 'badge-mitarbeiter', gast: 'badge-gast' };
+  const label = { admin: 'Admin', mitarbeiter: 'Mitarbeiter', gast: 'Gast' };
+  return `<span class="badge ${map[r] || 'badge-gast'}">${label[r] || r}</span>`;
+}
+
 // ──────────────────────────────────────────────────────────────────────────
 //  NAVIGATION
 // ──────────────────────────────────────────────────────────────────────────
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.h-nav button').forEach((b, i) => {
-    b.classList.toggle('active', b.getAttribute('onclick').includes(name));
+  document.querySelectorAll('.h-nav button').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('onclick').includes(`'${name}'`));
   });
   document.getElementById('page-' + name).classList.add('active');
-  if (name === 'overview') loadOverview();
-  if (name === 'termine') loadTermine();
+  if (name === 'overview')    loadOverview();
+  if (name === 'termine')     loadTermine();
   if (name === 'anmeldungen') { loadTermineFilter(); loadAnmeldungen(); }
+  if (name === 'benutzer')    loadBenutzer();
 }
 
 // ──────────────────────────────────────────────────────────────────────────
@@ -314,6 +377,19 @@ async function checkAuth() {
   if (!res.ok) { window.location.href = '/dashboard/login.html'; return; }
   const data = await res.json();
   document.getElementById('h-user').textContent = data.username;
+  _rolle = data.rolle || 'gast';
+  // Rolle-Badge im Header
+  document.getElementById('h-rolle-badge').innerHTML = rolleBadge(_rolle) + ' ';
+  applyRoleUI();
+}
+
+function applyRoleUI() {
+  const isAdmin       = _rolle === 'admin';
+  const isMitarbeiter = _rolle === 'admin' || _rolle === 'mitarbeiter';
+  // Benutzer-Nav nur für Admin
+  document.getElementById('nav-benutzer').style.display = isAdmin ? '' : 'none';
+  // "Neuer Termin" nur für Admin/Mitarbeiter
+  document.getElementById('btn-neuer-termin').style.display = isMitarbeiter ? '' : 'none';
 }
 
 async function logout() {
@@ -331,7 +407,6 @@ async function loadOverview() {
   document.getElementById('s-best').textContent    = stats.bestaetigungen;
   document.getElementById('s-termine').textContent = stats.aktiveTermine;
 
-  // letzte 10 Anmeldungen
   const anm = await (await fetch('/api/admin/anmeldungen')).json();
   const wrap = document.getElementById('overview-table');
   if (!anm.length) { wrap.innerHTML = '<div class="empty">Keine Anmeldungen vorhanden</div>'; return; }
@@ -353,6 +428,8 @@ async function loadTermine() {
   const termine = await (await fetch('/api/admin/kurstermine')).json();
   const wrap = document.getElementById('termine-table');
   if (!termine.length) { wrap.innerHTML = '<div class="empty">Noch keine Termine angelegt</div>'; return; }
+  const canEdit   = _rolle === 'admin' || _rolle === 'mitarbeiter';
+  const canDelete = _rolle === 'admin';
   const rows = termine.map(t => `
     <tr>
       <td>${fmtDate(t.datum_von)} – ${fmtDate(t.datum_bis)}</td>
@@ -362,26 +439,25 @@ async function loadTermine() {
       <td>${t.gebuchte_plaetze} / ${t.max_plaetze}</td>
       <td><span class="badge ${t.aktiv ? 'badge-aktiv' : 'badge-inaktiv'}">${t.aktiv ? 'Aktiv' : 'Inaktiv'}</span></td>
       <td class="td-actions">
-        <button class="btn btn-ghost btn-sm" onclick="editTermin(${t.id})">Bearbeiten</button>
-        <button class="btn btn-ghost btn-sm" onclick="dupTermin(${t.id})">Duplizieren</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteTermin(${t.id})">Löschen</button>
+        ${canEdit   ? `<button class="btn btn-ghost btn-sm" onclick="editTermin(${t.id})">Bearbeiten</button>` : ''}
+        ${canEdit   ? `<button class="btn btn-ghost btn-sm" onclick="dupTermin(${t.id})">Duplizieren</button>` : ''}
+        ${canDelete ? `<button class="btn btn-danger btn-sm" onclick="deleteTermin(${t.id})">Löschen</button>` : ''}
+        ${!canEdit  ? '<span style="color:var(--muted);font-size:12px">Nur lesen</span>' : ''}
       </td>
     </tr>`).join('');
   wrap.innerHTML = `<table><thead><tr><th>Datum</th><th>Standort</th><th>Beschreibung</th><th>Preis</th><th>Plätze</th><th>Status</th><th>Aktionen</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
-let _termine_cache = [];
-
 function openTerminModal(data = null) {
   document.getElementById('terminModal-title').textContent = data ? 'Termin bearbeiten' : 'Neuer Kurstermin';
-  document.getElementById('t-id').value          = data ? data.id : '';
-  document.getElementById('t-von').value         = data ? data.datum_von.slice(0,10) : '';
-  document.getElementById('t-bis').value         = data ? data.datum_bis.slice(0,10) : '';
-  document.getElementById('t-standort').value    = data ? data.standort : '';
+  document.getElementById('t-id').value           = data ? data.id : '';
+  document.getElementById('t-von').value          = data ? data.datum_von.slice(0,10) : '';
+  document.getElementById('t-bis').value          = data ? data.datum_bis.slice(0,10) : '';
+  document.getElementById('t-standort').value     = data ? data.standort : '';
   document.getElementById('t-beschreibung').value = data ? data.beschreibung : '';
   document.getElementById('t-preis').value        = data ? data.preis : '';
   document.getElementById('t-plaetze').value      = data ? data.max_plaetze : 20;
-  document.getElementById('t-aktiv').value       = data ? data.aktiv : 1;
+  document.getElementById('t-aktiv').value        = data ? data.aktiv : 1;
   document.getElementById('t-aktiv-group').style.display = data ? 'block' : 'none';
   document.getElementById('terminModal').classList.add('open');
 }
@@ -441,7 +517,6 @@ async function dupTermin(id) {
 // ──────────────────────────────────────────────────────────────────────────
 async function loadTermineFilter() {
   const termine = await (await fetch('/api/admin/kurstermine')).json();
-  _termine_cache = termine;
   const sel = document.getElementById('filter-termin');
   sel.innerHTML = '<option value="">Alle Termine</option>' +
     termine.map(t => `<option value="${t.id}">${fmtDate(t.datum_von)} – ${fmtDate(t.datum_bis)}, ${t.standort}</option>`).join('');
@@ -456,6 +531,8 @@ async function loadAnmeldungen() {
   const anm = await (await fetch(url)).json();
   const wrap = document.getElementById('anmeldungen-table');
   if (!anm.length) { wrap.innerHTML = '<div class="empty">Keine Anmeldungen gefunden</div>'; return; }
+  const canEdit   = _rolle === 'admin' || _rolle === 'mitarbeiter';
+  const canDelete = _rolle === 'admin';
   const rows = anm.map(a => `
     <tr>
       <td><strong>${a.vorname} ${a.nachname}</strong><br><span style="font-size:12px;color:var(--muted)">${a.email}</span></td>
@@ -466,13 +543,13 @@ async function loadAnmeldungen() {
       <td>${fmtDT(a.erstellt_am)}</td>
       <td class="td-actions">
         <button class="btn btn-ghost btn-sm" onclick="showDetail(${a.id})">Details</button>
-        <select class="inp" style="padding:5px 10px;font-size:12px" onchange="setStatus(${a.id}, this.value)">
+        ${canEdit ? `<select class="inp" style="padding:5px 10px;font-size:12px" onchange="setStatus(${a.id}, this.value)">
           <option value="">Status…</option>
           <option value="neu">Neu</option>
           <option value="bestaetigt">Bestätigt</option>
           <option value="storniert">Storniert</option>
-        </select>
-        <button class="btn btn-danger btn-sm" onclick="deleteAnmeldung(${a.id})">✕</button>
+        </select>` : ''}
+        ${canDelete ? `<button class="btn btn-danger btn-sm" onclick="deleteAnmeldung(${a.id})">✕</button>` : ''}
       </td>
     </tr>`).join('');
   wrap.innerHTML = `<table><thead><tr><th>Name</th><th>Telefon</th><th>Termin</th><th>Pers.</th><th>Status</th><th>Eingang</th><th>Aktionen</th></tr></thead><tbody>${rows}</tbody></table>`;
@@ -518,6 +595,77 @@ async function deleteAnmeldung(id) {
 }
 
 // ──────────────────────────────────────────────────────────────────────────
+//  BENUTZERVERWALTUNG
+// ──────────────────────────────────────────────────────────────────────────
+async function loadBenutzer() {
+  const users = await (await fetch('/api/admin/users')).json();
+  const wrap = document.getElementById('benutzer-table');
+  if (!users.length) { wrap.innerHTML = '<div class="empty">Keine Benutzer vorhanden</div>'; return; }
+  const rows = users.map(u => `
+    <tr>
+      <td><strong>${u.username}</strong></td>
+      <td>${rolleBadge(u.rolle)}</td>
+      <td class="td-actions">
+        <button class="btn btn-ghost btn-sm" onclick="editUser(${u.id}, '${u.username}', '${u.rolle}')">Bearbeiten</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">Löschen</button>
+      </td>
+    </tr>`).join('');
+  wrap.innerHTML = `<table><thead><tr><th>Benutzername</th><th>Rolle</th><th>Aktionen</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function openUserModal(data = null) {
+  document.getElementById('userModal-title').textContent = data ? 'Benutzer bearbeiten' : 'Neuer Benutzer';
+  document.getElementById('u-id').value       = data ? data.id : '';
+  document.getElementById('u-username').value = data ? data.username : '';
+  document.getElementById('u-password').value = '';
+  document.getElementById('u-rolle').value    = data ? data.rolle : 'mitarbeiter';
+  document.getElementById('u-pw-hint').textContent = data ? 'Leer lassen = Passwort nicht ändern' : 'Mind. 6 Zeichen';
+  document.getElementById('userModal').classList.add('open');
+}
+
+function closeUserModal() {
+  document.getElementById('userModal').classList.remove('open');
+}
+
+function editUser(id, username, rolle) {
+  openUserModal({ id, username, rolle });
+}
+
+async function saveUser() {
+  const id  = document.getElementById('u-id').value;
+  const body = {
+    username: document.getElementById('u-username').value.trim(),
+    password: document.getElementById('u-password').value,
+    rolle:    document.getElementById('u-rolle').value,
+  };
+  if (!body.username) { toast('Benutzername erforderlich', true); return; }
+  if (!id && !body.password) { toast('Passwort erforderlich', true); return; }
+  if (body.password && body.password.length < 6) { toast('Passwort mind. 6 Zeichen', true); return; }
+
+  const url    = id ? `/api/admin/users/${id}` : '/api/admin/users';
+  const method = id ? 'PUT' : 'POST';
+  const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (res.ok) {
+    toast(id ? 'Benutzer aktualisiert ✓' : 'Benutzer erstellt ✓');
+    closeUserModal();
+    loadBenutzer();
+  } else {
+    const err = await res.json();
+    toast(err.error || 'Fehler', true);
+  }
+}
+
+async function deleteUser(id) {
+  if (!confirm('Benutzer wirklich löschen?')) return;
+  const res = await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+  if (res.ok) { toast('Benutzer gelöscht'); loadBenutzer(); }
+  else {
+    const err = await res.json();
+    toast(err.error || 'Fehler', true);
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
 //  EINSTELLUNGEN
 // ──────────────────────────────────────────────────────────────────────────
 async function changePassword() {
@@ -533,8 +681,8 @@ async function changePassword() {
   });
   if (res.ok) {
     toast('Passwort geändert ✓');
-    document.getElementById('pw-alt').value = '';
-    document.getElementById('pw-neu').value = '';
+    document.getElementById('pw-alt').value  = '';
+    document.getElementById('pw-neu').value  = '';
     document.getElementById('pw-neu2').value = '';
   } else {
     const err = await res.json();

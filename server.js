@@ -54,15 +54,19 @@ db.exec(`
   );
 `);
 
-// Preis-Spalte nachrüsten falls noch nicht vorhanden (Migration)
+// Migrationen
 try { db.exec("ALTER TABLE kurstermine ADD COLUMN preis TEXT DEFAULT ''"); } catch(e) {}
+try { db.exec("ALTER TABLE admin_users ADD COLUMN rolle TEXT DEFAULT 'mitarbeiter'"); } catch(e) {}
 
 // Standard-Admin anlegen falls nicht vorhanden
 const adminExists = db.prepare('SELECT id FROM admin_users WHERE username = ?').get(config.admin.username);
 if (!adminExists) {
   const hash = bcrypt.hashSync(config.admin.password, 10);
-  db.prepare('INSERT INTO admin_users (username, password) VALUES (?, ?)').run(config.admin.username, hash);
+  db.prepare('INSERT INTO admin_users (username, password, rolle) VALUES (?, ?, ?)').run(config.admin.username, hash, 'admin');
   console.log(`✓ Admin-Account erstellt: ${config.admin.username}`);
+} else {
+  // Sicherstellen dass der Haupt-Admin immer 'admin' Rolle hat
+  db.prepare("UPDATE admin_users SET rolle = 'admin' WHERE username = ?").run(config.admin.username);
 }
 
 // ─── MAILER (Resend) ───────────────────────────────────────────────────────
@@ -180,6 +184,13 @@ app.use(session({
   cookie: { maxAge: 8 * 60 * 60 * 1000 }, // 8h
 }));
 
+// Dashboard-Bereich: Zugriff nur mit Login (ausser login.html)
+app.use('/dashboard', (req, res, next) => {
+  if (req.path === '/login.html') return next();
+  if (!req.session || !req.session.adminId) return res.redirect('/dashboard/login.html');
+  next();
+});
+
 // Statische Dateien (Frontend HTML)
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -192,10 +203,15 @@ function formatDate(str) {
 
 function requireAuth(req, res, next) {
   if (req.session && req.session.adminId) return next();
-  if (req.headers['content-type'] && req.headers['content-type'].includes('application/json')) {
-    return res.status(401).json({ error: 'Nicht eingeloggt' });
-  }
-  res.redirect('/dashboard/login.html');
+  return res.status(401).json({ error: 'Nicht eingeloggt' });
+}
+
+function requireRole(...roles) {
+  return (req, res, next) => {
+    if (!req.session || !req.session.adminId) return res.status(401).json({ error: 'Nicht eingeloggt' });
+    if (!roles.includes(req.session.adminRolle)) return res.status(403).json({ error: 'Keine Berechtigung' });
+    next();
+  };
 }
 
 // ─── AUTH ROUTEN ───────────────────────────────────────────────────────────
@@ -207,6 +223,7 @@ app.post('/api/auth/login', (req, res) => {
   }
   req.session.adminId = user.id;
   req.session.adminName = user.username;
+  req.session.adminRolle = user.rolle || 'gast';
   res.json({ ok: true });
 });
 
@@ -216,7 +233,7 @@ app.post('/api/auth/logout', (req, res) => {
 });
 
 app.get('/api/auth/me', requireAuth, (req, res) => {
-  res.json({ username: req.session.adminName });
+  res.json({ username: req.session.adminName, rolle: req.session.adminRolle });
 });
 
 // ─── KURSTERMINE API ───────────────────────────────────────────────────────
@@ -245,7 +262,7 @@ app.get('/api/admin/kurstermine', requireAuth, (req, res) => {
 });
 
 // Termin anlegen
-app.post('/api/admin/kurstermine', requireAuth, (req, res) => {
+app.post('/api/admin/kurstermine', requireAuth, requireRole('admin', 'mitarbeiter'), (req, res) => {
   const { datum_von, datum_bis, standort, beschreibung, max_plaetze } = req.body;
   if (!datum_von || !datum_bis || !standort) {
     return res.status(400).json({ error: 'datum_von, datum_bis und standort sind Pflichtfelder' });
@@ -259,7 +276,7 @@ app.post('/api/admin/kurstermine', requireAuth, (req, res) => {
 });
 
 // Termin bearbeiten
-app.put('/api/admin/kurstermine/:id', requireAuth, (req, res) => {
+app.put('/api/admin/kurstermine/:id', requireAuth, requireRole('admin', 'mitarbeiter'), (req, res) => {
   const { datum_von, datum_bis, standort, beschreibung, max_plaetze, aktiv, preis } = req.body;
   db.prepare(`
     UPDATE kurstermine SET datum_von=?, datum_bis=?, standort=?, beschreibung=?, max_plaetze=?, aktiv=?, preis=?
@@ -269,13 +286,13 @@ app.put('/api/admin/kurstermine/:id', requireAuth, (req, res) => {
 });
 
 // Termin löschen
-app.delete('/api/admin/kurstermine/:id', requireAuth, (req, res) => {
+app.delete('/api/admin/kurstermine/:id', requireAuth, requireRole('admin'), (req, res) => {
   db.prepare('DELETE FROM kurstermine WHERE id = ?').run(req.params.id);
   res.json({ ok: true });
 });
 
 // Termin duplizieren
-app.post('/api/admin/kurstermine/:id/duplizieren', requireAuth, (req, res) => {
+app.post('/api/admin/kurstermine/:id/duplizieren', requireAuth, requireRole('admin', 'mitarbeiter'), (req, res) => {
   const original = db.prepare('SELECT * FROM kurstermine WHERE id = ?').get(req.params.id);
   if (!original) return res.status(404).json({ error: 'Termin nicht gefunden' });
   const result = db.prepare(`
@@ -337,7 +354,7 @@ app.get('/api/admin/anmeldungen', requireAuth, (req, res) => {
 });
 
 // Anmeldung Status ändern
-app.put('/api/admin/anmeldungen/:id/status', requireAuth, (req, res) => {
+app.put('/api/admin/anmeldungen/:id/status', requireAuth, requireRole('admin', 'mitarbeiter'), (req, res) => {
   const { status } = req.body;
   const allowed = ['neu', 'bestaetigt', 'storniert'];
   if (!allowed.includes(status)) return res.status(400).json({ error: 'Ungültiger Status' });
@@ -346,7 +363,7 @@ app.put('/api/admin/anmeldungen/:id/status', requireAuth, (req, res) => {
 });
 
 // Anmeldung löschen
-app.delete('/api/admin/anmeldungen/:id', requireAuth, (req, res) => {
+app.delete('/api/admin/anmeldungen/:id', requireAuth, requireRole('admin'), (req, res) => {
   db.prepare('DELETE FROM anmeldungen WHERE id = ?').run(req.params.id);
   res.json({ ok: true });
 });
@@ -372,18 +389,58 @@ app.post('/api/admin/passwort', requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
-// ─── DASHBOARD ROUTEN ──────────────────────────────────────────────────────
-app.get('/dashboard', requireAuth, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'dashboard', 'index.html'));
+// ─── BENUTZERVERWALTUNG API ────────────────────────────────────────────────
+
+app.get('/api/admin/users', requireAuth, requireRole('admin'), (req, res) => {
+  const users = db.prepare('SELECT id, username, rolle FROM admin_users ORDER BY id').all();
+  res.json(users);
 });
 
-app.get('/dashboard/:file', (req, res, next) => {
-  // Login-Seite immer erlauben
-  if (req.path === '/dashboard/login.html') return next();
-  requireAuth(req, res, next);
-}, (req, res) => {
-  const file = req.path.replace('/dashboard/', '');
-  res.sendFile(path.join(__dirname, 'public', 'dashboard', file));
+app.post('/api/admin/users', requireAuth, requireRole('admin'), (req, res) => {
+  const { username, password, rolle } = req.body;
+  if (!username || !password || !rolle) return res.status(400).json({ error: 'Alle Felder erforderlich' });
+  if (!['admin', 'mitarbeiter', 'gast'].includes(rolle)) return res.status(400).json({ error: 'Ungültige Rolle' });
+  try {
+    const hash = bcrypt.hashSync(password, 10);
+    const result = db.prepare('INSERT INTO admin_users (username, password, rolle) VALUES (?, ?, ?)').run(username, hash, rolle);
+    res.json({ ok: true, id: result.lastInsertRowid });
+  } catch(e) {
+    res.status(400).json({ error: 'Benutzername bereits vergeben' });
+  }
+});
+
+app.put('/api/admin/users/:id', requireAuth, requireRole('admin'), (req, res) => {
+  const { username, password, rolle } = req.body;
+  if (!username || !rolle) return res.status(400).json({ error: 'Benutzername und Rolle erforderlich' });
+  if (!['admin', 'mitarbeiter', 'gast'].includes(rolle)) return res.status(400).json({ error: 'Ungültige Rolle' });
+  try {
+    if (password && password.length >= 6) {
+      const hash = bcrypt.hashSync(password, 10);
+      db.prepare('UPDATE admin_users SET username=?, password=?, rolle=? WHERE id=?').run(username, hash, rolle, req.params.id);
+    } else {
+      db.prepare('UPDATE admin_users SET username=?, rolle=? WHERE id=?').run(username, rolle, req.params.id);
+    }
+    res.json({ ok: true });
+  } catch(e) {
+    res.status(400).json({ error: 'Benutzername bereits vergeben' });
+  }
+});
+
+app.delete('/api/admin/users/:id', requireAuth, requireRole('admin'), (req, res) => {
+  if (parseInt(req.params.id) === req.session.adminId) {
+    return res.status(400).json({ error: 'Sie können sich nicht selbst löschen' });
+  }
+  db.prepare('DELETE FROM admin_users WHERE id = ?').run(req.params.id);
+  res.json({ ok: true });
+});
+
+// ─── DASHBOARD ROUTEN ──────────────────────────────────────────────────────
+app.get('/dashboard', (req, res) => {
+  if (req.session && req.session.adminId) {
+    res.redirect('/dashboard/index.html');
+  } else {
+    res.redirect('/dashboard/login.html');
+  }
 });
 
 // ─── START ─────────────────────────────────────────────────────────────────
