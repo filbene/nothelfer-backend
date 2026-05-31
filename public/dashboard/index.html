@@ -732,6 +732,7 @@ async function showDetail(id) {
         ['Name', `${a.vorname} ${a.nachname}`],
         ['E-Mail', a.email],
         ['Telefon', a.telefon || '—'],
+        ['Geburtsdatum', a.geburtsdatum ? fmtDate(a.geburtsdatum) : '—'],
         ['Adresse', `${a.strasse}, ${a.plz_ort}`],
         ['Termin', `${fmtDate(a.datum_von)} – ${fmtDate(a.datum_bis)}, ${a.standort}`],
         ['Personen', a.anzahl_personen],

@@ -1795,6 +1795,12 @@ body {
       </div>
       <div class="form-row">
         <div class="form-group">
+          <label class="form-label">Geburtsdatum *</label>
+          <input type="date" name="geburtsdatum" class="form-input" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
           <label class="form-label">Strasse *</label>
           <input type="text" name="strasse" class="form-input" placeholder="Musterstrasse 1" required>
         </div>
@@ -1885,6 +1891,13 @@ body {
             <div class="form-group">
               <label class="form-label">Telefon</label>
               <input type="tel" name="telefon" class="form-input" placeholder="+41 79 000 00 00">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Geburtsdatum *</label>
+              <input type="date" name="geburtsdatum" class="form-input" required>
             </div>
           </div>
 
@@ -2287,6 +2300,7 @@ async function submitModalForm(e) {
     plz_ort:         form.querySelector('[name="plz_ort"]').value,
     kurstermin_id:   document.getElementById('modal-kurstermin-id').value,
     anzahl_personen: form.querySelector('[name="anzahl_personen"]').value,
+    geburtsdatum:    form.querySelector('[name="geburtsdatum"]').value,
     bemerkungen:     form.querySelector('[name="bemerkungen"]').value,
   };
   try {
@@ -2332,6 +2346,7 @@ async function submitForm(e) {
     plz_ort:         form.querySelector('[name="plz_ort"]').value,
     kurstermin_id:   form.querySelector('[name="kurstermin_id"]').value,
     anzahl_personen: form.querySelector('[name="anzahl_personen"]').value,
+    geburtsdatum:    form.querySelector('[name="geburtsdatum"]').value,
     bemerkungen:     form.querySelector('[name="bemerkungen"]').value,
   };
 

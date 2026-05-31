@@ -64,6 +64,7 @@ try { db.exec("ALTER TABLE kurstermine ADD COLUMN preis TEXT DEFAULT ''"); } cat
 try { db.exec("ALTER TABLE admin_users ADD COLUMN rolle TEXT DEFAULT 'mitarbeiter'"); } catch(e) {}
 try { db.exec("ALTER TABLE kurstermine ADD COLUMN archiviert INTEGER DEFAULT 0"); } catch(e) {}
 try { db.exec("ALTER TABLE kurstermine ADD COLUMN archiviert_am TEXT DEFAULT NULL"); } catch(e) {}
+try { db.exec("ALTER TABLE anmeldungen ADD COLUMN geburtsdatum TEXT DEFAULT ''"); } catch(e) {}
 
 // Activity Log Tabelle
 db.exec(`
@@ -420,7 +421,7 @@ app.post('/api/admin/kurstermine/:id/duplizieren', requireAuth, requireRole('adm
 
 // Neue Anmeldung (public — vom Frontend-Formular)
 app.post('/api/anmeldungen', anmeldungLimiter, async (req, res) => {
-  const { vorname, nachname, email, telefon, strasse, plz_ort, kurstermin_id, anzahl_personen, bemerkungen } = req.body;
+  const { vorname, nachname, email, telefon, strasse, plz_ort, kurstermin_id, anzahl_personen, bemerkungen, geburtsdatum } = req.body;
 
   // Pflichtfelder prüfen
   if (!vorname || !nachname || !email || !strasse || !plz_ort || !kurstermin_id) {
@@ -460,9 +461,9 @@ app.post('/api/anmeldungen', anmeldungLimiter, async (req, res) => {
   }
 
   const result = db.prepare(`
-    INSERT INTO anmeldungen (vorname, nachname, email, telefon, strasse, plz_ort, kurstermin_id, anzahl_personen, bemerkungen)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(vorname, nachname, email, telefon || '', strasse, plz_ort, kurstermin_id, gewuenscht, bemerkungen || '');
+    INSERT INTO anmeldungen (vorname, nachname, email, telefon, strasse, plz_ort, kurstermin_id, anzahl_personen, bemerkungen, geburtsdatum)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(vorname, nachname, email, telefon || '', strasse, plz_ort, kurstermin_id, gewuenscht, bemerkungen || '', geburtsdatum || '');
 
   // Sofort antworten — E-Mail wird im Hintergrund gesendet
   res.json({ ok: true, id: result.lastInsertRowid });
