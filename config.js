@@ -1,31 +1,42 @@
 /**
  * ══════════════════════════════════════════
  *  KONFIGURATION — HIER ANPASSEN
+ *  WICHTIG: config.js ist in .gitignore —
+ *  niemals ins Git-Repository einchecken!
  * ══════════════════════════════════════════
  */
+
+// Pflicht-Umgebungsvariablen prüfen
+const required = ['SESSION_SECRET', 'ADMIN_PASSWORD'];
+const missing = required.filter(k => !process.env[k]);
+if (missing.length) {
+  console.error(`[FEHLER] Fehlende Umgebungsvariablen: ${missing.join(', ')}`);
+  console.error('Bitte .env-Datei anlegen oder Railway-Variablen setzen.');
+  process.exit(1);
+}
+
 module.exports = {
 
   // Server Port
   port: 3000,
 
-  // Session Secret — wird aus Umgebungsvariable gelesen (Railway/Server)
-  sessionSecret: process.env.SESSION_SECRET || 'nothelfer-secret-2026-bitte-aendern',
+  // Session Secret — muss als Umgebungsvariable gesetzt sein
+  sessionSecret: process.env.SESSION_SECRET,
 
   // Standard Admin-Login (wird beim ersten Start erstellt)
-  // Danach Passwort im Dashboard ändern
+  // Passwort über ADMIN_PASSWORD Umgebungsvariable setzen
   admin: {
-    username: 'admin',
-    password: 'admin1234',
+    username: process.env.ADMIN_USERNAME || 'admin',
+    password: process.env.ADMIN_PASSWORD,
   },
 
   // ── SMTP ─────────────────────────────────
-  // Trage hier deine SMTP-Daten ein:
   smtp: {
-    host:         'asmtp.mail.hostpoint.ch',       // z.B. mail.your-server.de
-    port:         587,                       // 587 (TLS) oder 465 (SSL)
-    secure:       false,                    // false für Port 587
+    host:         'asmtp.mail.hostpoint.ch',
+    port:         587,
+    secure:       false,
     user:         'info@nothelferzentrum.ch',
-    pass:         process.env.SMTP_PASS || 'Nothelferzentrum123?',
+    pass:         process.env.SMTP_PASS || '',
     absenderName: 'Nothelfer Zentrum',
   }
 

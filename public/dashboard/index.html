@@ -72,6 +72,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 .badge-storniert{background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2)}
 .badge-aktiv{background:rgba(34,197,94,0.12);color:#22c55e;border:1px solid rgba(34,197,94,0.2)}
 .badge-inaktiv{background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2)}
+.badge-archiviert{background:rgba(148,163,184,0.12);color:#94a3b8;border:1px solid rgba(148,163,184,0.25)}
 .badge-admin{background:rgba(196,30,58,0.15);color:#e05c78;border:1px solid rgba(196,30,58,0.3)}
 .badge-mitarbeiter{background:rgba(99,102,241,0.15);color:#818cf8;border:1px solid rgba(99,102,241,0.3)}
 .badge-gast{background:rgba(255,255,255,0.06);color:var(--muted);border:1px solid var(--border)}
@@ -572,23 +573,33 @@ async function loadTermine() {
   const canEdit      = _rolle === 'admin' || _rolle === 'mitarbeiter';
   const canStornieren = _rolle === 'admin' || _rolle === 'mitarbeiter';
   const canDelete    = _rolle === 'admin';
-  const rows = termine.map(t => `
-    <tr${!t.aktiv ? ' style="opacity:.5"' : ''}>
-      <td style="${!t.aktiv ? 'text-decoration:line-through' : ''}">${fmtDate(t.datum_von)} – ${fmtDate(t.datum_bis)}</td>
-      <td style="${!t.aktiv ? 'text-decoration:line-through' : ''}">${t.standort}</td>
+  const rows = termine.map(t => {
+    const istArchiviert = !!t.archiviert;
+    const istInaktiv    = !t.aktiv && !istArchiviert;
+    const rowStyle      = istArchiviert ? ' style="opacity:.45"' : (istInaktiv ? ' style="opacity:.5"' : '');
+    const cellStyle     = istArchiviert || istInaktiv ? 'style="text-decoration:line-through"' : '';
+    let badge, badgeClass;
+    if (istArchiviert)    { badge = 'Archiviert'; badgeClass = 'badge-archiviert'; }
+    else if (!t.aktiv)    { badge = 'Storniert';  badgeClass = 'badge-inaktiv';   }
+    else                  { badge = 'Aktiv';       badgeClass = 'badge-aktiv';     }
+    return `
+    <tr${rowStyle}>
+      <td ${cellStyle}>${fmtDate(t.datum_von)} – ${fmtDate(t.datum_bis)}</td>
+      <td ${cellStyle}>${t.standort}</td>
       <td>${t.beschreibung || '—'}</td>
       <td>${t.preis || '—'}</td>
       <td>${t.gebuchte_plaetze} / ${t.max_plaetze}</td>
-      <td><span class="badge ${t.aktiv ? 'badge-aktiv' : 'badge-inaktiv'}">${t.aktiv ? 'Aktiv' : 'Storniert'}</span></td>
+      <td><span class="badge ${badgeClass}">${badge}</span></td>
       <td class="td-actions">
-        ${canEdit      ? `<button class="btn btn-ghost btn-sm" onclick="editTermin(${t.id})">Bearbeiten</button>` : ''}
+        ${canEdit && !istArchiviert ? `<button class="btn btn-ghost btn-sm" onclick="editTermin(${t.id})">Bearbeiten</button>` : ''}
         ${canEdit      ? `<button class="btn btn-ghost btn-sm" onclick="dupTermin(${t.id})">Duplizieren</button>` : ''}
-        ${canStornieren && t.aktiv  ? `<button class="btn btn-danger btn-sm" onclick="storniereTermin(${t.id}, false)">Stornieren</button>` : ''}
-        ${canStornieren && !t.aktiv ? `<button class="btn btn-ghost btn-sm" onclick="storniereTermin(${t.id}, true)">Reaktivieren</button>` : ''}
+        ${canStornieren && t.aktiv && !istArchiviert  ? `<button class="btn btn-danger btn-sm" onclick="storniereTermin(${t.id}, false)">Stornieren</button>` : ''}
+        ${canStornieren && istInaktiv ? `<button class="btn btn-ghost btn-sm" onclick="storniereTermin(${t.id}, true)">Reaktivieren</button>` : ''}
         ${canDelete    ? `<button class="btn btn-danger btn-sm" onclick="deleteTermin(${t.id})">Löschen</button>` : ''}
         ${!canEdit     ? '<span style="color:var(--muted);font-size:12px">Nur lesen</span>' : ''}
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
   wrap.innerHTML = `<table><thead><tr><th>Datum</th><th>Standort</th><th>Beschreibung</th><th>Preis</th><th>Plätze</th><th>Status</th><th>Aktionen</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 

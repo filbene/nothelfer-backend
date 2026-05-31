@@ -62,6 +62,8 @@ db.exec(`
 // Migrationen
 try { db.exec("ALTER TABLE kurstermine ADD COLUMN preis TEXT DEFAULT ''"); } catch(e) {}
 try { db.exec("ALTER TABLE admin_users ADD COLUMN rolle TEXT DEFAULT 'mitarbeiter'"); } catch(e) {}
+try { db.exec("ALTER TABLE kurstermine ADD COLUMN archiviert INTEGER DEFAULT 0"); } catch(e) {}
+try { db.exec("ALTER TABLE kurstermine ADD COLUMN archiviert_am TEXT DEFAULT NULL"); } catch(e) {}
 
 // Activity Log Tabelle
 db.exec(`
@@ -93,6 +95,23 @@ if (process.env.RESET_ADMIN_PASSWORD) {
   db.prepare('UPDATE admin_users SET password = ? WHERE username = ?').run(hash, config.admin.username);
   console.log('✓ Admin-Passwort wurde zurückgesetzt (RESET_ADMIN_PASSWORD)');
 }
+
+// ─── AUTO-ARCHIVIERUNG ─────────────────────────────────────────────────────
+
+function kurseArchivieren() {
+  const result = db.prepare(`
+    UPDATE kurstermine SET archiviert = 1, archiviert_am = datetime('now')
+    WHERE archiviert = 0 AND date(datum_von) <= date('now')
+  `).run();
+  if (result.changes > 0) {
+    db.prepare('INSERT INTO activity_logs (benutzer, aktion, kategorie, details) VALUES (?, ?, ?, ?)')
+      .run('System', `${result.changes} Kurs/Kurse automatisch archiviert`, 'kurs', 'Auto-Archivierung bei Kursstart');
+    console.log(`✓ ${result.changes} Kurs/Kurse archiviert`);
+  }
+}
+
+kurseArchivieren();
+setInterval(kurseArchivieren, 60 * 60 * 1000);
 
 // ─── MAILER (Resend) ───────────────────────────────────────────────────────
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -324,7 +343,7 @@ app.get('/api/kurstermine', (req, res) => {
     SELECT k.*,
       COALESCE((SELECT SUM(a.anzahl_personen) FROM anmeldungen a WHERE a.kurstermin_id = k.id AND a.status != 'storniert'), 0) AS gebuchte_plaetze
     FROM kurstermine k
-    WHERE k.aktiv = 1
+    WHERE k.aktiv = 1 AND k.archiviert = 0
     ORDER BY k.datum_von ASC
   `).all();
   res.json(termine);
@@ -430,7 +449,7 @@ app.post('/api/anmeldungen', anmeldungLimiter, async (req, res) => {
   }
 
   // Termin prüfen
-  const termin = db.prepare('SELECT * FROM kurstermine WHERE id = ? AND aktiv = 1').get(kurstermin_id);
+  const termin = db.prepare('SELECT * FROM kurstermine WHERE id = ? AND aktiv = 1 AND archiviert = 0').get(kurstermin_id);
   if (!termin) return res.status(400).json({ error: 'Kurstermin nicht gefunden oder inaktiv' });
 
   // Plätze prüfen (Summe der Personen, ohne Stornierungen)
