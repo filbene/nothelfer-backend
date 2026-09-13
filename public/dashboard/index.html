@@ -126,15 +126,31 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
 .badge-benutzer{background:rgba(249,115,22,0.15);color:#f97316;border:1px solid rgba(249,115,22,0.2)}
 .log-details{font-size:12px;color:var(--muted);margin-top:2px}
 
-/* KURS ROW CLICKABLE */
-.kurs-row{cursor:pointer;transition:background .15s}
-.kurs-row:hover td{background:rgba(196,30,58,0.06) !important}
-.kurs-row:active td{background:rgba(196,30,58,0.1) !important}
-.plaetze-bar-mini{background:var(--border);border-radius:99px;height:4px;margin-top:6px;overflow:hidden}
+/* KURS CARDS GRID */
+.kurse-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:16px}
+.kurs-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;cursor:pointer;transition:border-color .2s,transform .18s,box-shadow .18s;display:flex;flex-direction:column;position:relative}
+.kurs-card:hover{border-color:rgba(196,30,58,0.5);transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,0.28)}
+.kurs-card.inaktiv{opacity:.55}
+.kurs-card.archiviert{opacity:.45;cursor:default}
+.kurs-card.archiviert:hover{transform:none;border-color:var(--border);box-shadow:none}
+.kc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.kc-date{font-size:26px;font-weight:700;line-height:1;color:var(--text)}
+.kc-date-sub{font-size:12px;color:var(--muted);margin-top:4px}
+.kc-standort{font-size:15px;font-weight:700;margin-bottom:4px}
+.kc-beschreibung{font-size:12px;color:var(--muted);margin-bottom:10px;min-height:14px}
+.kc-preis{font-size:15px;font-weight:700;color:var(--crimson);margin-bottom:14px}
+.kc-spacer{flex:1}
+.kc-plaetze-label{font-size:11px;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between}
+.plaetze-bar-mini{background:var(--border);border-radius:99px;height:5px;overflow:hidden;margin-bottom:14px}
 .plaetze-bar-mini-fill{height:100%;border-radius:99px;background:var(--green);transition:width .3s}
 .plaetze-bar-mini-fill.warn{background:var(--orange)}
 .plaetze-bar-mini-fill.danger{background:var(--red)}
-.kurs-click-hint{font-size:11px;color:var(--muted);margin-top:6px;font-style:italic}
+.kc-actions{display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:12px}
+/* CHECKBOX FILTER */
+.cb-label{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--muted);user-select:none;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);transition:all .2s}
+.cb-label input{accent-color:var(--crimson);width:15px;height:15px;cursor:pointer}
+.cb-label:hover{color:var(--text);border-color:rgba(196,30,58,0.3)}
+@media(max-width:768px){.kurse-grid{grid-template-columns:1fr}}
 
 /* HAMBURGER */
 .h-hamburger{display:none;background:none;border:none;cursor:pointer;padding:8px;color:var(--text);border-radius:8px}
@@ -248,9 +264,15 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
 <div class="page" id="page-termine">
   <div class="section-header">
     <h2>Kurstermine verwalten</h2>
-    <button class="btn btn-primary" id="btn-neuer-termin" onclick="openTerminModal()">+ Neuer Termin</button>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <label class="cb-label">
+        <input type="checkbox" id="show-archiviert" onchange="loadTermine()">
+        Archivierte anzeigen
+      </label>
+      <button class="btn btn-primary" id="btn-neuer-termin" onclick="openTerminModal()">+ Neuer Termin</button>
+    </div>
   </div>
-  <div class="table-wrap" id="termine-table">
+  <div id="termine-container">
     <div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Keine Termine vorhanden</div>
   </div>
 </div>
@@ -594,52 +616,72 @@ async function loadOverview() {
 //  KURSTERMINE
 // ──────────────────────────────────────────────────────────────────────────
 async function loadTermine() {
-  const termine = await (await fetch('/api/admin/kurstermine')).json();
-  const wrap = document.getElementById('termine-table');
-  if (!termine.length) { wrap.innerHTML = '<div class="empty">Noch keine Termine angelegt</div>'; return; }
-  const canEdit      = _rolle === 'admin' || _rolle === 'mitarbeiter';
+  const alle = await (await fetch('/api/admin/kurstermine')).json();
+  const zeigArchiviert = document.getElementById('show-archiviert')?.checked;
+  const termine = zeigArchiviert ? alle : alle.filter(t => !t.archiviert);
+  const wrap = document.getElementById('termine-container');
+
+  if (!termine.length) {
+    wrap.innerHTML = `<div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:48px;height:48px;margin:0 auto 16px;display:block;opacity:.3"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      ${alle.length > 0 ? 'Keine aktiven Kurse — archivierte einblenden?' : 'Noch keine Termine angelegt'}
+    </div>`;
+    return;
+  }
+
+  const canEdit       = _rolle === 'admin' || _rolle === 'mitarbeiter';
   const canStornieren = _rolle === 'admin' || _rolle === 'mitarbeiter';
-  const canDelete    = _rolle === 'admin';
-  const rows = termine.map(t => {
+  const canDelete     = _rolle === 'admin';
+
+  const cards = termine.map(t => {
     const istArchiviert  = !!t.archiviert;
     const istInaktiv     = !t.aktiv && !istArchiviert;
-    const rowOpacity     = istArchiviert ? ' style="opacity:.45"' : (istInaktiv ? ' style="opacity:.55"' : '');
-    const cellStrike     = istArchiviert || istInaktiv ? 'style="text-decoration:line-through"' : '';
     const plaetzePercent = t.max_plaetze > 0 ? Math.round((t.gebuchte_plaetze / t.max_plaetze) * 100) : 0;
     const barClass       = plaetzePercent >= 90 ? ' danger' : plaetzePercent >= 70 ? ' warn' : '';
+
     let badge, badgeClass;
     if (istArchiviert) { badge = 'Archiviert'; badgeClass = 'badge-archiviert'; }
-    else if (!t.aktiv) { badge = 'Storniert';  badgeClass = 'badge-inaktiv';   }
-    else               { badge = 'Aktiv';       badgeClass = 'badge-aktiv';     }
+    else if (!t.aktiv) { badge = 'Storniert';  badgeClass = 'badge-inaktiv'; }
+    else               { badge = 'Aktiv';       badgeClass = 'badge-aktiv'; }
+
+    const cardClass = istArchiviert ? ' archiviert' : (istInaktiv ? ' inaktiv' : '');
+    const clickAttr = !istArchiviert ? `onclick="showKursDetail(${t.id})"` : '';
+
+    const vonDate  = new Date(t.datum_von);
+    const tagVon   = vonDate.toLocaleDateString('de-CH', { day: '2-digit', month: 'short' });
+    const jahrVon  = vonDate.getFullYear();
+    const isSameDay = t.datum_von.slice(0,10) === t.datum_bis.slice(0,10);
+
     return `
-    <tr class="kurs-row"${rowOpacity} onclick="showKursDetail(${t.id})">
-      <td ${cellStrike}>
-        <div style="font-weight:600">${fmtDate(t.datum_von)}</div>
-        <div style="font-size:12px;color:var(--muted)">${fmtDate(t.datum_bis)}</div>
-      </td>
-      <td ${cellStrike}><strong>${t.standort}</strong></td>
-      <td style="color:var(--muted);font-size:13px">${t.beschreibung || '—'}</td>
-      <td style="font-weight:600">${t.preis || '—'}</td>
-      <td>
-        <div style="white-space:nowrap;font-size:13px">${t.gebuchte_plaetze} <span style="color:var(--muted)">/ ${t.max_plaetze}</span></div>
-        <div class="plaetze-bar-mini"><div class="plaetze-bar-mini-fill${barClass}" style="width:${plaetzePercent}%"></div></div>
-      </td>
-      <td><span class="badge ${badgeClass}">${badge}</span></td>
-      <td class="td-actions" onclick="event.stopPropagation()">
+    <div class="kurs-card${cardClass}" ${clickAttr}>
+      <div class="kc-top">
+        <div>
+          <div class="kc-date">${tagVon}</div>
+          <div class="kc-date-sub">${isSameDay ? jahrVon : 'bis ' + fmtDate(t.datum_bis)}</div>
+        </div>
+        <span class="badge ${badgeClass}">${badge}</span>
+      </div>
+      <div class="kc-standort">${t.standort}</div>
+      <div class="kc-beschreibung">${t.beschreibung || ''}</div>
+      <div class="kc-preis">${t.preis || '—'}</div>
+      <div class="kc-spacer"></div>
+      <div class="kc-plaetze-label">
+        <span>Plätze belegt</span>
+        <span style="font-weight:600;color:var(--text)">${t.gebuchte_plaetze} / ${t.max_plaetze}</span>
+      </div>
+      <div class="plaetze-bar-mini"><div class="plaetze-bar-mini-fill${barClass}" style="width:${plaetzePercent}%"></div></div>
+      <div class="kc-actions" onclick="event.stopPropagation()">
         ${canEdit && !istArchiviert ? `<button class="btn btn-ghost btn-sm" onclick="editTermin(${t.id})">Bearbeiten</button>` : ''}
         ${canEdit      ? `<button class="btn btn-ghost btn-sm" onclick="dupTermin(${t.id})">Duplizieren</button>` : ''}
-        ${canStornieren && t.aktiv && !istArchiviert  ? `<button class="btn btn-danger btn-sm" onclick="storniereTermin(${t.id}, false)">Stornieren</button>` : ''}
+        ${canStornieren && t.aktiv && !istArchiviert ? `<button class="btn btn-danger btn-sm" onclick="storniereTermin(${t.id}, false)">Stornieren</button>` : ''}
         ${canStornieren && istInaktiv ? `<button class="btn btn-ghost btn-sm" onclick="storniereTermin(${t.id}, true)">Reaktivieren</button>` : ''}
-        ${canDelete    ? `<button class="btn btn-danger btn-sm" onclick="deleteTermin(${t.id})">Löschen</button>` : ''}
-        ${!canEdit     ? '<span style="color:var(--muted);font-size:12px">Nur lesen</span>' : ''}
-      </td>
-    </tr>`;
+        ${canDelete ? `<button class="btn btn-danger btn-sm" onclick="deleteTermin(${t.id})">Löschen</button>` : ''}
+        ${!canEdit ? '<span style="color:var(--muted);font-size:12px">Nur lesen</span>' : ''}
+      </div>
+    </div>`;
   }).join('');
-  wrap.innerHTML = `
-    <div style="padding:10px 16px 8px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--border)">
-      Auf einen Kurs klicken um Details &amp; Teilnehmerliste anzuzeigen
-    </div>
-    <table><thead><tr><th>Datum</th><th>Standort</th><th>Beschreibung</th><th>Preis</th><th>Plätze</th><th>Status</th><th>Aktionen</th></tr></thead><tbody>${rows}</tbody></table>`;
+
+  wrap.innerHTML = `<div class="kurse-grid">${cards}</div>`;
 }
 
 function openTerminModal(data = null) {
