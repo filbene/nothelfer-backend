@@ -126,6 +126,16 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
 .badge-benutzer{background:rgba(249,115,22,0.15);color:#f97316;border:1px solid rgba(249,115,22,0.2)}
 .log-details{font-size:12px;color:var(--muted);margin-top:2px}
 
+/* KURS ROW CLICKABLE */
+.kurs-row{cursor:pointer;transition:background .15s}
+.kurs-row:hover td{background:rgba(196,30,58,0.06) !important}
+.kurs-row:active td{background:rgba(196,30,58,0.1) !important}
+.plaetze-bar-mini{background:var(--border);border-radius:99px;height:4px;margin-top:6px;overflow:hidden}
+.plaetze-bar-mini-fill{height:100%;border-radius:99px;background:var(--green);transition:width .3s}
+.plaetze-bar-mini-fill.warn{background:var(--orange)}
+.plaetze-bar-mini-fill.danger{background:var(--red)}
+.kurs-click-hint{font-size:11px;color:var(--muted);margin-top:6px;font-style:italic}
+
 /* HAMBURGER */
 .h-hamburger{display:none;background:none;border:none;cursor:pointer;padding:8px;color:var(--text);border-radius:8px}
 .h-hamburger:hover{background:rgba(255,255,255,0.06)}
@@ -420,6 +430,21 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
   </div>
 </div>
 
+<!-- ─── MODAL KURSDETAIL ──────────────────────────────────────────────────── -->
+<div class="modal-bg" id="kursDetailModal">
+  <div class="modal" style="max-width:760px">
+    <h3 id="kd-title">Kursdetails</h3>
+    <div id="kurs-detail-content"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('kursDetailModal').classList.remove('open')">Schliessen</button>
+      <button class="btn btn-primary" onclick="exportTeilnehmerliste()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Teilnehmerliste exportieren
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div id="toast"></div>
 
@@ -447,6 +472,8 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
 //  STATE
 // ──────────────────────────────────────────────────────────────────────────
 let _rolle = 'gast';
+let _currentKursData = null;
+let _currentTeilnehmer = [];
 
 // ──────────────────────────────────────────────────────────────────────────
 //  UTILS
@@ -574,23 +601,31 @@ async function loadTermine() {
   const canStornieren = _rolle === 'admin' || _rolle === 'mitarbeiter';
   const canDelete    = _rolle === 'admin';
   const rows = termine.map(t => {
-    const istArchiviert = !!t.archiviert;
-    const istInaktiv    = !t.aktiv && !istArchiviert;
-    const rowStyle      = istArchiviert ? ' style="opacity:.45"' : (istInaktiv ? ' style="opacity:.5"' : '');
-    const cellStyle     = istArchiviert || istInaktiv ? 'style="text-decoration:line-through"' : '';
+    const istArchiviert  = !!t.archiviert;
+    const istInaktiv     = !t.aktiv && !istArchiviert;
+    const rowOpacity     = istArchiviert ? ' style="opacity:.45"' : (istInaktiv ? ' style="opacity:.55"' : '');
+    const cellStrike     = istArchiviert || istInaktiv ? 'style="text-decoration:line-through"' : '';
+    const plaetzePercent = t.max_plaetze > 0 ? Math.round((t.gebuchte_plaetze / t.max_plaetze) * 100) : 0;
+    const barClass       = plaetzePercent >= 90 ? ' danger' : plaetzePercent >= 70 ? ' warn' : '';
     let badge, badgeClass;
-    if (istArchiviert)    { badge = 'Archiviert'; badgeClass = 'badge-archiviert'; }
-    else if (!t.aktiv)    { badge = 'Storniert';  badgeClass = 'badge-inaktiv';   }
-    else                  { badge = 'Aktiv';       badgeClass = 'badge-aktiv';     }
+    if (istArchiviert) { badge = 'Archiviert'; badgeClass = 'badge-archiviert'; }
+    else if (!t.aktiv) { badge = 'Storniert';  badgeClass = 'badge-inaktiv';   }
+    else               { badge = 'Aktiv';       badgeClass = 'badge-aktiv';     }
     return `
-    <tr${rowStyle}>
-      <td ${cellStyle}>${fmtDate(t.datum_von)} – ${fmtDate(t.datum_bis)}</td>
-      <td ${cellStyle}>${t.standort}</td>
-      <td>${t.beschreibung || '—'}</td>
-      <td>${t.preis || '—'}</td>
-      <td>${t.gebuchte_plaetze} / ${t.max_plaetze}</td>
+    <tr class="kurs-row"${rowOpacity} onclick="showKursDetail(${t.id})">
+      <td ${cellStrike}>
+        <div style="font-weight:600">${fmtDate(t.datum_von)}</div>
+        <div style="font-size:12px;color:var(--muted)">${fmtDate(t.datum_bis)}</div>
+      </td>
+      <td ${cellStrike}><strong>${t.standort}</strong></td>
+      <td style="color:var(--muted);font-size:13px">${t.beschreibung || '—'}</td>
+      <td style="font-weight:600">${t.preis || '—'}</td>
+      <td>
+        <div style="white-space:nowrap;font-size:13px">${t.gebuchte_plaetze} <span style="color:var(--muted)">/ ${t.max_plaetze}</span></div>
+        <div class="plaetze-bar-mini"><div class="plaetze-bar-mini-fill${barClass}" style="width:${plaetzePercent}%"></div></div>
+      </td>
       <td><span class="badge ${badgeClass}">${badge}</span></td>
-      <td class="td-actions">
+      <td class="td-actions" onclick="event.stopPropagation()">
         ${canEdit && !istArchiviert ? `<button class="btn btn-ghost btn-sm" onclick="editTermin(${t.id})">Bearbeiten</button>` : ''}
         ${canEdit      ? `<button class="btn btn-ghost btn-sm" onclick="dupTermin(${t.id})">Duplizieren</button>` : ''}
         ${canStornieren && t.aktiv && !istArchiviert  ? `<button class="btn btn-danger btn-sm" onclick="storniereTermin(${t.id}, false)">Stornieren</button>` : ''}
@@ -600,7 +635,11 @@ async function loadTermine() {
       </td>
     </tr>`;
   }).join('');
-  wrap.innerHTML = `<table><thead><tr><th>Datum</th><th>Standort</th><th>Beschreibung</th><th>Preis</th><th>Plätze</th><th>Status</th><th>Aktionen</th></tr></thead><tbody>${rows}</tbody></table>`;
+  wrap.innerHTML = `
+    <div style="padding:10px 16px 8px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--border)">
+      Auf einen Kurs klicken um Details &amp; Teilnehmerliste anzuzeigen
+    </div>
+    <table><thead><tr><th>Datum</th><th>Standort</th><th>Beschreibung</th><th>Preis</th><th>Plätze</th><th>Status</th><th>Aktionen</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 function openTerminModal(data = null) {
@@ -907,6 +946,190 @@ async function changePassword() {
     const err = await res.json();
     toast(err.error || 'Fehler', true);
   }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+//  KURSDETAIL & TEILNEHMERLISTE EXPORT
+// ──────────────────────────────────────────────────────────────────────────
+async function showKursDetail(id) {
+  const termine = await (await fetch('/api/admin/kurstermine')).json();
+  const kurs = termine.find(t => t.id === id);
+  if (!kurs) return;
+  _currentKursData = kurs;
+
+  const anm = await (await fetch(`/api/admin/anmeldungen?termin_id=${id}`)).json();
+  _currentTeilnehmer = anm;
+
+  const istArchiviert  = !!kurs.archiviert;
+  const statusLabel    = istArchiviert ? 'Archiviert' : (!kurs.aktiv ? 'Storniert' : 'Aktiv');
+  const statusBadgeCls = istArchiviert ? 'badge-archiviert' : (!kurs.aktiv ? 'badge-inaktiv' : 'badge-aktiv');
+  const plaetzePercent = kurs.max_plaetze > 0 ? Math.round((kurs.gebuchte_plaetze / kurs.max_plaetze) * 100) : 0;
+  const barClass       = plaetzePercent >= 90 ? ' danger' : plaetzePercent >= 70 ? ' warn' : '';
+
+  const teilnehmerRows = anm.length === 0
+    ? '<tr><td colspan="5" style="text-align:center;padding:28px;color:var(--muted);font-style:italic">Noch keine Anmeldungen für diesen Kurs</td></tr>'
+    : anm.map(a => `
+      <tr>
+        <td><strong>${a.vorname} ${a.nachname}</strong><br><span style="font-size:12px;color:var(--muted)">${a.email}</span></td>
+        <td style="white-space:nowrap;font-size:13px">${a.telefon || '—'}</td>
+        <td style="white-space:nowrap;font-size:13px">${a.geburtsdatum ? fmtDate(a.geburtsdatum) : '—'}</td>
+        <td style="text-align:center;font-size:13px">${a.anzahl_personen}</td>
+        <td>${statusBadge(a.status)}</td>
+      </tr>`).join('');
+
+  document.getElementById('kd-title').textContent = `${kurs.standort} — ${fmtDate(kurs.datum_von)}`;
+  document.getElementById('kurs-detail-content').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:24px">
+      <div style="background:var(--surface2);border-radius:10px;padding:14px">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Datum</div>
+        <div style="font-weight:600;font-size:13px">${fmtDate(kurs.datum_von)}<br><span style="color:var(--muted)">${fmtDate(kurs.datum_bis)}</span></div>
+      </div>
+      <div style="background:var(--surface2);border-radius:10px;padding:14px">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Standort</div>
+        <div style="font-weight:600;font-size:13px">${kurs.standort}</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:10px;padding:14px">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Preis</div>
+        <div style="font-weight:600;font-size:13px">${kurs.preis || '—'}</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:10px;padding:14px">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Plätze</div>
+        <div style="font-weight:600;font-size:13px">${kurs.gebuchte_plaetze} / ${kurs.max_plaetze}</div>
+        <div class="plaetze-bar-mini" style="margin-top:8px"><div class="plaetze-bar-mini-fill${barClass}" style="width:${plaetzePercent}%"></div></div>
+      </div>
+      <div style="background:var(--surface2);border-radius:10px;padding:14px">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Status</div>
+        <div><span class="badge ${statusBadgeCls}">${statusLabel}</span></div>
+      </div>
+      ${kurs.beschreibung ? `<div style="background:var(--surface2);border-radius:10px;padding:14px;grid-column:1/-1">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Beschreibung</div>
+        <div style="font-size:13px">${kurs.beschreibung}</div>
+      </div>` : ''}
+    </div>
+    <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">
+      Anmeldungen (${anm.length})
+    </div>
+    <div class="table-wrap" style="max-height:280px;overflow-y:auto">
+      <table>
+        <thead><tr>
+          <th>Name / E-Mail</th><th>Telefon</th><th>Geburtsdatum</th><th style="text-align:center">Pers.</th><th>Status</th>
+        </tr></thead>
+        <tbody>${teilnehmerRows}</tbody>
+      </table>
+    </div>`;
+
+  document.getElementById('kursDetailModal').classList.add('open');
+}
+
+function exportTeilnehmerliste() {
+  const kurs = _currentKursData;
+  const teilnehmer = _currentTeilnehmer;
+  if (!kurs) return;
+  const origin = window.location.origin;
+  const datum = new Date().toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+  const statusBadgePrint = (s) => {
+    const map   = { neu: 'badge-neu', bestaetigt: 'badge-bestaetigt', storniert: 'badge-storniert' };
+    const label = { neu: 'Neu', bestaetigt: 'Bestätigt', storniert: 'Storniert' };
+    return `<span class="badge ${map[s] || ''}">${label[s] || s}</span>`;
+  };
+
+  const rows = teilnehmer.map((a, i) => `
+    <tr>
+      <td style="color:#999;font-size:12px;text-align:center">${i + 1}</td>
+      <td><strong>${a.vorname} ${a.nachname}</strong></td>
+      <td style="white-space:nowrap">${a.geburtsdatum ? fmtDate(a.geburtsdatum) : '—'}</td>
+      <td>${a.strasse || '—'}<br><span style="color:#666;font-size:12px">${a.plz_ort || ''}</span></td>
+      <td>${a.email}</td>
+      <td style="white-space:nowrap">${a.telefon || '—'}</td>
+      <td style="text-align:center">${a.anzahl_personen}</td>
+      <td>${statusBadgePrint(a.status)}</td>
+    </tr>`).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Teilnehmerliste – ${kurs.standort} ${fmtDate(kurs.datum_von)}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Helvetica Neue',Arial,sans-serif;color:#1a1a1a;background:#fff}
+.ph{background:#C41E3A;color:#fff;padding:20px 32px;display:flex;align-items:center;justify-content:space-between}
+.ph img{height:36px;object-fit:contain}
+.ph-r{text-align:right;font-size:13px;opacity:.9;line-height:1.8}
+.ki{background:#f7f7f7;border-bottom:2px solid #e8e8e8;padding:18px 32px}
+.ki h2{font-size:16px;font-weight:700;color:#C41E3A;margin-bottom:12px}
+.ki-meta{display:flex;gap:32px;flex-wrap:wrap}
+.ki-item{font-size:13px}
+.ki-item span{display:block;color:#999;font-size:10px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.content{padding:22px 32px}
+.content h3{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#999;margin-bottom:14px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:#1a1a1a;color:#fff;padding:9px 11px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+tbody td{padding:9px 11px;border-bottom:1px solid #efefef;vertical-align:top;line-height:1.5}
+tbody tr:nth-child(even) td{background:#fafafa}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.badge-bestaetigt{background:#d1fae5;color:#065f46}
+.badge-neu{background:#fef3c7;color:#92400e}
+.badge-storniert{background:#fee2e2;color:#991b1b}
+.pf{padding:14px 32px;font-size:11px;color:#bbb;border-top:1px solid #eee;display:flex;justify-content:space-between;margin-top:24px}
+.no-print{position:fixed;bottom:24px;right:24px}
+.pbtn{background:#C41E3A;color:#fff;border:none;padding:12px 26px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(196,30,58,.35)}
+.pbtn:hover{background:#a01830}
+@media print{@page{size:A4 landscape;margin:12mm 14mm}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.no-print{display:none!important}}
+</style>
+</head>
+<body>
+<div class="ph">
+  <img src="${origin}/images/logo-horizontal-white.png" alt="Nothelfer Zentrum">
+  <div class="ph-r">
+    <div><strong>Teilnehmerliste</strong></div>
+    <div>Erstellt: ${datum}</div>
+    <div>${teilnehmer.length} Teilnehmer</div>
+  </div>
+</div>
+<div class="ki">
+  <h2>Kurs – ${kurs.standort}</h2>
+  <div class="ki-meta">
+    <div class="ki-item"><span>Datum</span>${fmtDate(kurs.datum_von)} – ${fmtDate(kurs.datum_bis)}</div>
+    <div class="ki-item"><span>Standort</span>${kurs.standort}</div>
+    ${kurs.preis ? `<div class="ki-item"><span>Preis</span>${kurs.preis}</div>` : ''}
+    <div class="ki-item"><span>Plätze</span>${kurs.gebuchte_plaetze} / ${kurs.max_plaetze} belegt</div>
+    ${kurs.beschreibung ? `<div class="ki-item"><span>Beschreibung</span>${kurs.beschreibung}</div>` : ''}
+  </div>
+</div>
+<div class="content">
+  <h3>Angemeldete Teilnehmer (${teilnehmer.length})</h3>
+  ${teilnehmer.length === 0
+    ? '<p style="color:#999;font-style:italic;font-size:14px">Keine Anmeldungen vorhanden.</p>'
+    : `<table>
+    <thead><tr>
+      <th style="width:30px;text-align:center">#</th>
+      <th>Name</th>
+      <th>Geburtsdatum</th>
+      <th>Adresse</th>
+      <th>E-Mail</th>
+      <th>Telefon</th>
+      <th style="text-align:center">Pers.</th>
+      <th>Status</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`}
+</div>
+<div class="pf">
+  <span>Nothelfer Zentrum &middot; www.nothelferzentrum.ch</span>
+  <span>Exportiert am ${datum}</span>
+</div>
+<div class="no-print">
+  <button class="pbtn" onclick="window.print()">&#128438; Drucken / Als PDF speichern</button>
+</div>
+<script>window.onload=function(){window.print()}<\/script>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
 }
 
 // ──────────────────────────────────────────────────────────────────────────
