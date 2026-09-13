@@ -66,6 +66,19 @@ try { db.exec("ALTER TABLE kurstermine ADD COLUMN archiviert INTEGER DEFAULT 0")
 try { db.exec("ALTER TABLE kurstermine ADD COLUMN archiviert_am TEXT DEFAULT NULL"); } catch(e) {}
 try { db.exec("ALTER TABLE anmeldungen ADD COLUMN geburtsdatum TEXT DEFAULT ''"); } catch(e) {}
 
+// Kursvorlagen Tabelle
+db.exec(`
+  CREATE TABLE IF NOT EXISTS kursvorlagen (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    name         TEXT NOT NULL,
+    standort     TEXT NOT NULL DEFAULT '',
+    beschreibung TEXT DEFAULT '',
+    preis        TEXT DEFAULT '',
+    max_plaetze  INTEGER DEFAULT 20,
+    erstellt_am  TEXT DEFAULT (datetime('now'))
+  );
+`);
+
 // Activity Log Tabelle
 db.exec(`
   CREATE TABLE IF NOT EXISTS activity_logs (
@@ -415,6 +428,41 @@ app.post('/api/admin/kurstermine/:id/duplizieren', requireAuth, requireRole('adm
   `).run(original.datum_von, original.datum_bis, original.standort, original.beschreibung, original.max_plaetze);
   logAktion(req, 'Kurs dupliziert', 'kurs', `${formatDate(original.datum_von)} – ${formatDate(original.datum_bis)}, ${original.standort}`);
   res.json({ ok: true, id: result.lastInsertRowid });
+});
+
+// ─── KURSVORLAGEN API ─────────────────────────────────────────────────────
+
+app.get('/api/admin/kursvorlagen', requireAuth, (req, res) => {
+  const vorlagen = db.prepare('SELECT * FROM kursvorlagen ORDER BY name ASC').all();
+  res.json(vorlagen);
+});
+
+app.post('/api/admin/kursvorlagen', requireAuth, requireRole('admin', 'mitarbeiter'), (req, res) => {
+  const { name, standort, beschreibung, preis, max_plaetze } = req.body;
+  if (!name) return res.status(400).json({ error: 'Name ist Pflicht' });
+  const result = db.prepare(`
+    INSERT INTO kursvorlagen (name, standort, beschreibung, preis, max_plaetze)
+    VALUES (?, ?, ?, ?, ?)
+  `).run(name, standort || '', beschreibung || '', preis || '', max_plaetze || 20);
+  logAktion(req, 'Vorlage erstellt', 'vorlage', name);
+  res.json({ ok: true, id: result.lastInsertRowid });
+});
+
+app.put('/api/admin/kursvorlagen/:id', requireAuth, requireRole('admin', 'mitarbeiter'), (req, res) => {
+  const { name, standort, beschreibung, preis, max_plaetze } = req.body;
+  if (!name) return res.status(400).json({ error: 'Name ist Pflicht' });
+  db.prepare(`
+    UPDATE kursvorlagen SET name=?, standort=?, beschreibung=?, preis=?, max_plaetze=? WHERE id=?
+  `).run(name, standort || '', beschreibung || '', preis || '', max_plaetze || 20, req.params.id);
+  logAktion(req, 'Vorlage bearbeitet', 'vorlage', name);
+  res.json({ ok: true });
+});
+
+app.delete('/api/admin/kursvorlagen/:id', requireAuth, requireRole('admin', 'mitarbeiter'), (req, res) => {
+  const v = db.prepare('SELECT * FROM kursvorlagen WHERE id = ?').get(req.params.id);
+  db.prepare('DELETE FROM kursvorlagen WHERE id = ?').run(req.params.id);
+  logAktion(req, 'Vorlage gelöscht', 'vorlage', v ? v.name : `ID ${req.params.id}`);
+  res.json({ ok: true });
 });
 
 // ─── ANMELDUNGEN API ───────────────────────────────────────────────────────

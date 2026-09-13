@@ -151,6 +151,24 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
 .cb-label:hover{color:var(--text);border-color:rgba(196,30,58,0.3)}
 @media(max-width:768px){.kurse-grid{grid-template-columns:1fr}}
 
+/* KURSVORLAGEN */
+.vorlage-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.vorlage-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;display:flex;flex-direction:column;transition:border-color .2s,transform .18s,box-shadow .18s}
+.vorlage-card:hover{border-color:rgba(196,30,58,0.4);box-shadow:0 6px 24px rgba(0,0,0,0.24)}
+.vc-name{font-size:17px;font-weight:700;margin-bottom:6px}
+.vc-standort{font-size:13px;color:var(--muted);margin-bottom:4px}
+.vc-beschreibung{font-size:12px;color:var(--muted);margin-bottom:10px;min-height:16px}
+.vc-preis{font-size:15px;font-weight:700;color:var(--crimson);margin-bottom:4px}
+.vc-plaetze{font-size:12px;color:var(--muted);margin-bottom:14px}
+.vc-spacer{flex:1}
+.vc-actions{display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:12px}
+
+/* VORLAGE SELECTOR im Termin-Modal */
+.vorlage-selector{background:rgba(196,30,58,0.06);border:1px solid rgba(196,30,58,0.2);border-radius:10px;padding:12px 14px;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.vorlage-selector label{font-size:13px;color:var(--muted);white-space:nowrap}
+.vorlage-selector select{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:inherit;font-size:13px;padding:6px 10px;border-radius:8px;cursor:pointer}
+@media(max-width:768px){.vorlage-grid{grid-template-columns:1fr}}
+
 /* HAMBURGER */
 .h-hamburger{display:none;background:none;border:none;cursor:pointer;padding:8px;color:var(--text);border-radius:8px}
 .h-hamburger:hover{background:rgba(255,255,255,0.06)}
@@ -210,6 +228,7 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
   <nav class="h-nav">
     <button class="active" onclick="showPage('overview')">Übersicht</button>
     <button onclick="showPage('termine')">Kurstermine</button>
+    <button onclick="showPage('vorlagen')">Vorlagen</button>
     <button onclick="showPage('anmeldungen')">Anmeldungen</button>
     <button id="nav-benutzer" onclick="showPage('benutzer')" style="display:none">Benutzer</button>
     <button id="nav-logs" onclick="showPage('logs')" style="display:none">Logs</button>
@@ -230,6 +249,7 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
 <nav class="mobile-nav" id="mobile-nav">
   <button class="active" onclick="showPage('overview');closeMobileNav()">Übersicht</button>
   <button onclick="showPage('termine');closeMobileNav()">Kurstermine</button>
+  <button onclick="showPage('vorlagen');closeMobileNav()">Vorlagen</button>
   <button onclick="showPage('anmeldungen');closeMobileNav()">Anmeldungen</button>
   <button id="mnav-benutzer" onclick="showPage('benutzer');closeMobileNav()" style="display:none">Benutzer</button>
   <button id="mnav-logs" onclick="showPage('logs');closeMobileNav()" style="display:none">Logs</button>
@@ -273,6 +293,17 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
   </div>
   <div id="termine-container">
     <div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Keine Termine vorhanden</div>
+  </div>
+</div>
+
+<!-- ─── KURSVORLAGEN ─────────────────────────────────────────────────── -->
+<div class="page" id="page-vorlagen">
+  <div class="section-header">
+    <h2>Kursvorlagen</h2>
+    <button class="btn btn-primary" onclick="openVorlageModal()">+ Neue Vorlage</button>
+  </div>
+  <div id="vorlagen-container">
+    <div class="empty">Noch keine Vorlagen erstellt</div>
   </div>
 </div>
 
@@ -369,6 +400,12 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
   <div class="modal">
     <h3 id="terminModal-title">Neuer Kurstermin</h3>
     <input type="hidden" id="t-id">
+    <div class="vorlage-selector" id="vorlage-selector-row">
+      <label>Vorlage laden:</label>
+      <select id="t-vorlage-select" onchange="applyVorlage(this.value)">
+        <option value="">— Vorlage auswählen —</option>
+      </select>
+    </div>
     <div class="form-row">
       <div class="form-group">
         <label class="fl">Datum Von *</label>
@@ -407,6 +444,40 @@ label.fl{display:block;font-size:12px;font-weight:600;text-transform:uppercase;l
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeTerminModal()">Abbrechen</button>
       <button class="btn btn-primary" onclick="saveTermin()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL KURSVORLAGE ────────────────────────────────────────────────── -->
+<div class="modal-bg" id="vorlageModal">
+  <div class="modal">
+    <h3 id="vorlageModal-title">Neue Vorlage</h3>
+    <input type="hidden" id="v-id">
+    <div class="form-group">
+      <label class="fl">Vorlagenname * <span style="font-size:11px;color:var(--muted);font-weight:400">(interner Name, z.B. „BLS AED Kurs")</span></label>
+      <input type="text" id="v-name" class="inp" placeholder="z.B. BLS AED Kurs">
+    </div>
+    <div class="form-group">
+      <label class="fl">Standort</label>
+      <input type="text" id="v-standort" class="inp" placeholder="Wil SG">
+    </div>
+    <div class="form-group">
+      <label class="fl">Beschreibung</label>
+      <input type="text" id="v-beschreibung" class="inp" placeholder="Optional...">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="fl">Preis</label>
+        <input type="text" id="v-preis" class="inp" placeholder="CHF 180.–">
+      </div>
+      <div class="form-group">
+        <label class="fl">Max. Plätze</label>
+        <input type="number" id="v-plaetze" class="inp" value="20" min="1">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeVorlageModal()">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveVorlage()">Speichern</button>
     </div>
   </div>
 </div>
@@ -543,6 +614,7 @@ function showPage(name) {
   document.getElementById('page-' + name).classList.add('active');
   if (name === 'overview')    loadOverview();
   if (name === 'termine')     loadTermine();
+  if (name === 'vorlagen')    loadVorlagen();
   if (name === 'anmeldungen') { loadTermineFilter(); loadAnmeldungen(); }
   if (name === 'benutzer')    loadBenutzer();
   if (name === 'logs')        loadLogs();
@@ -683,18 +755,58 @@ async function loadTermine() {
   wrap.innerHTML = `<div class="kurse-grid">${cards}</div>`;
 }
 
-function openTerminModal(data = null) {
+async function openTerminModal(data = null, vorlageData = null) {
   document.getElementById('terminModal-title').textContent = data ? 'Termin bearbeiten' : 'Neuer Kurstermin';
   document.getElementById('t-id').value           = data ? data.id : '';
   document.getElementById('t-von').value          = data ? data.datum_von.slice(0,10) : '';
   document.getElementById('t-bis').value          = data ? data.datum_bis.slice(0,10) : '';
-  document.getElementById('t-standort').value     = data ? data.standort : '';
-  document.getElementById('t-beschreibung').value = data ? data.beschreibung : '';
-  document.getElementById('t-preis').value        = data ? data.preis : '';
-  document.getElementById('t-plaetze').value      = data ? data.max_plaetze : 20;
+  const prefill = vorlageData || data;
+  document.getElementById('t-standort').value     = prefill ? prefill.standort : '';
+  document.getElementById('t-beschreibung').value = prefill ? prefill.beschreibung : '';
+  document.getElementById('t-preis').value        = prefill ? prefill.preis : '';
+  document.getElementById('t-plaetze').value      = prefill ? prefill.max_plaetze : 20;
   document.getElementById('t-aktiv').value        = data ? data.aktiv : 1;
   document.getElementById('t-aktiv-group').style.display = data ? 'block' : 'none';
+
+  // Vorlage-Selektor: nur bei neuem Termin anzeigen
+  const selectorRow = document.getElementById('vorlage-selector-row');
+  const sel = document.getElementById('t-vorlage-select');
+  if (!data) {
+    selectorRow.style.display = '';
+    sel.value = '';
+    try {
+      const vorlagen = await (await fetch('/api/admin/kursvorlagen')).json();
+      sel.innerHTML = '<option value="">— Vorlage auswählen —</option>' +
+        vorlagen.map(v => `<option value="${v.id}">${v.name}</option>`).join('');
+    } catch(e) { sel.innerHTML = '<option value="">— Keine Vorlagen —</option>'; }
+  } else {
+    selectorRow.style.display = 'none';
+  }
   document.getElementById('terminModal').classList.add('open');
+}
+
+let _vorlagen = [];
+
+async function applyVorlage(id) {
+  if (!id) return;
+  const v = _vorlagen.find(x => x.id == id);
+  if (!v) {
+    try {
+      const fresh = await (await fetch('/api/admin/kursvorlagen')).json();
+      _vorlagen = fresh;
+      const vf = fresh.find(x => x.id == id);
+      if (vf) _applyVorlageFields(vf);
+    } catch(e) {}
+    return;
+  }
+  _applyVorlageFields(v);
+}
+
+function _applyVorlageFields(v) {
+  document.getElementById('t-standort').value     = v.standort || '';
+  document.getElementById('t-beschreibung').value = v.beschreibung || '';
+  document.getElementById('t-preis').value        = v.preis || '';
+  document.getElementById('t-plaetze').value      = v.max_plaetze || 20;
 }
 
 function closeTerminModal() {
@@ -1171,6 +1283,93 @@ tbody tr:nth-child(even) td{background:#fafafa}
   const win = window.open('', '_blank');
   win.document.write(html);
   win.document.close();
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+//  KURSVORLAGEN
+// ──────────────────────────────────────────────────────────────────────────
+
+async function loadVorlagen() {
+  try {
+    _vorlagen = await (await fetch('/api/admin/kursvorlagen')).json();
+  } catch(e) { _vorlagen = []; }
+  const wrap = document.getElementById('vorlagen-container');
+  if (!_vorlagen.length) {
+    wrap.innerHTML = `<div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8M8 8h8M8 16h5"/></svg>
+      Noch keine Vorlagen erstellt
+    </div>`;
+    return;
+  }
+  const canEdit = _rolle === 'admin' || _rolle === 'mitarbeiter';
+  const cards = _vorlagen.map(v => `
+    <div class="vorlage-card">
+      <div class="vc-name">${v.name}</div>
+      <div class="vc-standort">${v.standort ? '📍 ' + v.standort : ''}</div>
+      <div class="vc-beschreibung">${v.beschreibung || ''}</div>
+      <div class="vc-preis">${v.preis || '—'}</div>
+      <div class="vc-plaetze">Max. ${v.max_plaetze} Plätze</div>
+      <div class="vc-spacer"></div>
+      <div class="vc-actions">
+        <button class="btn btn-primary" style="flex:1;font-size:12px;padding:8px 10px" onclick="terminAusVorlage(${v.id})">
+          + Termin erstellen
+        </button>
+        ${canEdit ? `<button class="btn btn-ghost" style="font-size:12px;padding:8px 10px" onclick="openVorlageModal(${v.id})">Bearbeiten</button>` : ''}
+        ${canEdit ? `<button class="btn btn-ghost" style="font-size:12px;padding:8px 10px;color:var(--red)" onclick="deleteVorlage(${v.id},'${v.name.replace(/'/g,"\\'")}')">Löschen</button>` : ''}
+      </div>
+    </div>
+  `).join('');
+  wrap.innerHTML = `<div class="vorlage-grid">${cards}</div>`;
+}
+
+async function terminAusVorlage(id) {
+  const v = _vorlagen.find(x => x.id === id);
+  if (!v) return;
+  showPage('termine');
+  await openTerminModal(null, v);
+}
+
+function openVorlageModal(id = null) {
+  const v = id ? _vorlagen.find(x => x.id === id) : null;
+  document.getElementById('vorlageModal-title').textContent = v ? 'Vorlage bearbeiten' : 'Neue Vorlage';
+  document.getElementById('v-id').value          = v ? v.id : '';
+  document.getElementById('v-name').value        = v ? v.name : '';
+  document.getElementById('v-standort').value    = v ? v.standort : '';
+  document.getElementById('v-beschreibung').value = v ? v.beschreibung : '';
+  document.getElementById('v-preis').value       = v ? v.preis : '';
+  document.getElementById('v-plaetze').value     = v ? v.max_plaetze : 20;
+  document.getElementById('vorlageModal').classList.add('open');
+}
+
+function closeVorlageModal() {
+  document.getElementById('vorlageModal').classList.remove('open');
+}
+
+async function saveVorlage() {
+  const id = document.getElementById('v-id').value;
+  const body = {
+    name:        document.getElementById('v-name').value.trim(),
+    standort:    document.getElementById('v-standort').value.trim(),
+    beschreibung:document.getElementById('v-beschreibung').value.trim(),
+    preis:       document.getElementById('v-preis').value.trim(),
+    max_plaetze: parseInt(document.getElementById('v-plaetze').value) || 20,
+  };
+  if (!body.name) return showToast('Vorlagenname ist Pflicht', true);
+  const url = id ? `/api/admin/kursvorlagen/${id}` : '/api/admin/kursvorlagen';
+  const method = id ? 'PUT' : 'POST';
+  const r = await fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  if (!r.ok) return showToast('Fehler beim Speichern', true);
+  closeVorlageModal();
+  showToast(id ? 'Vorlage aktualisiert' : 'Vorlage erstellt');
+  loadVorlagen();
+}
+
+async function deleteVorlage(id, name) {
+  if (!confirm(`Vorlage „${name}" wirklich löschen?`)) return;
+  const r = await fetch(`/api/admin/kursvorlagen/${id}`, { method: 'DELETE' });
+  if (!r.ok) return showToast('Fehler beim Löschen', true);
+  showToast('Vorlage gelöscht');
+  loadVorlagen();
 }
 
 // ──────────────────────────────────────────────────────────────────────────
